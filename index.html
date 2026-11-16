@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سلام دنیای کد — ساخته پارسا خیری</title>
+
+<style>
+  :root {
+    --c1:#6a11cb; --c2:#2575fc; --c3:#ff2e93;
+    --bg:#05050f; --txt:#fff; --muted:#a9adc7;
+    --glass:rgba(255,255,255,.05); --border:rgba(255,255,255,.12);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family:"Vazirmatn",Tahoma,sans-serif; background:var(--bg); color:var(--txt); min-height:100vh; overflow-x:hidden; }
+
+  .bg-orbs { position:fixed; inset:0; pointer-events:none; z-index:-2; overflow:hidden; filter:blur(60px); }
+  .orb { position:absolute; border-radius:50%; opacity:.55; mix-blend-mode:screen; }
+  .orb-1 { width:500px;height:500px;background:radial-gradient(circle,#6a11cb,transparent 70%);top:-100px;left:-100px;animation:orb1 22s ease-in-out infinite alternate; }
+  .orb-2 { width:600px;height:600px;background:radial-gradient(circle,#2575fc,transparent 70%);top:30%;right:-200px;animation:orb2 28s ease-in-out infinite alternate; }
+  .orb-3 { width:450px;height:450px;background:radial-gradient(circle,#ff2e93,transparent 70%);bottom:-150px;left:30%;animation:orb3 24s ease-in-out infinite alternate; }
+  @keyframes orb1 { to { transform: translate(150px,100px) scale(1.2); } }
+  @keyframes orb2 { to { transform: translate(-150px,-120px) scale(1.15); } }
+  @keyframes orb3 { to { transform: translate(100px,-150px) scale(1.25); } }
+
+  .particles { position:fixed; inset:0; pointer-events:none; z-index:-1; overflow:hidden; }
+  .particle { position:absolute; border-radius:50%; background:linear-gradient(135deg,#6a11cb,#2575fc,#ff2e93); animation:floatUp linear infinite; box-shadow:0 0 10px rgba(106,17,203,.7); }
+  @keyframes floatUp {
+    0% { transform:translate(0,0); opacity:0; }
+    10% { opacity:1; }
+    90% { opacity:1; }
+    100% { transform:translate(80px,-110vh); opacity:0; }
+  }
+
+  /* بنر سازنده */
+  .creator-banner {
+    position: relative; padding: 14px 22px;
+    background: linear-gradient(90deg, rgba(106,17,203,.25), rgba(37,117,252,.2), rgba(255,46,147,.25), rgba(106,17,203,.25));
+    background-size: 400% 100%;
+    border-bottom: 1px solid rgba(255,255,255,.15);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px; backdrop-filter: blur(14px);
+    animation: bannerGradient 8s ease infinite; overflow: hidden; z-index: 10;
+  }
+  .creator-banner::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(106,17,203,.35), transparent 40%),
+                radial-gradient(circle at 80% 50%, rgba(255,46,147,.35), transparent 40%);
+    pointer-events: none; animation: bannerGlow 4s ease-in-out infinite alternate;
+  }
+  @keyframes bannerGradient { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+  @keyframes bannerGlow { from { opacity: .5; } to { opacity: 1; } }
+  .creator-banner .sparkle { position: absolute; font-size: .9rem; pointer-events: none; animation: sparkleFloat 4s ease-in-out infinite; }
+  .creator-banner .sparkle:nth-child(1) { top: 20%; right: 10%; animation-delay: 0s; }
+  .creator-banner .sparkle:nth-child(2) { top: 60%; right: 25%; animation-delay: 1s; }
+  .creator-banner .sparkle:nth-child(3) { top: 30%; right: 55%; animation-delay: 2s; }
+  .creator-banner .sparkle:nth-child(4) { top: 70%; right: 70%; animation-delay: 1.5s; }
+  .creator-banner .sparkle:nth-child(5) { top: 25%; right: 85%; animation-delay: 2.5s; }
+  @keyframes sparkleFloat { 0%,100% { transform: translateY(0) scale(1); opacity: .4; } 50% { transform: translateY(-8px) scale(1.3); opacity: 1; } }
+
+  .creator-info { display: flex; align-items: center; gap: 10px; font-size: .9rem; color: #e8eaf6; position: relative; z-index: 1; }
+  .creator-info .crown { font-size: 1.3rem; animation: crownFloat 3s ease-in-out infinite; filter: drop-shadow(0 0 10px rgba(255,46,147,.6)); }
+  @keyframes crownFloat { 0%,100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-4px) rotate(5deg); } }
+  .creator-info strong { background: linear-gradient(90deg, #ff2e93, #6a11cb, #2575fc, #ff2e93); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 900; animation: shimmerText 4s linear infinite; }
+  @keyframes shimmerText { to { background-position: 300% 0; } }
+  .creator-info .deepseek { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; background: linear-gradient(135deg, rgba(106,17,203,.4), rgba(37,117,252,.4)); border: 1px solid rgba(120,180,255,.4); border-radius: 999px; font-size: .78rem; font-weight: 700; margin-right: 4px; }
+
+  .auth-area { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; position: relative; z-index: 1; }
+  .nav-btn { font-family: inherit; font-size: .78rem; font-weight: 700; padding: 8px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.08); color: #fff; cursor: pointer; transition: all .25s; display: inline-flex; align-items: center; gap: 5px; }
+  .nav-btn:hover { background: rgba(255,255,255,.2); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.3); }
+  .nav-btn.primary { background: linear-gradient(135deg, #6a11cb, #2575fc); border: none; box-shadow: 0 4px 15px rgba(37,117,252,.4); }
+  .nav-btn.admin { background: linear-gradient(135deg, #f59e0b, #ff2e93); border: none; box-shadow: 0 4px 15px rgba(255,46,147,.4); }
+  .user-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 999px; font-size: .8rem; font-weight: 700; color: #b8d9ff; }
+  .user-badge::before { content: "👤"; font-size: .9rem; }
+
+  /* هیرو */
+  .hero { min-height:90vh; padding:40px 24px; display:grid; place-items:center; }
+  .hero-grid { width:100%; max-width:1200px; display:grid; grid-template-columns:1fr 1.15fr; gap:40px; align-items:start; }
+  @media (max-width:900px) { .hero-grid { grid-template-columns:1fr; gap:30px; } }
+  .hero-text { text-align:right; padding-top:30px; }
+  .badge { display:inline-block; padding:8px 20px; border-radius:999px; font-size:.85rem; color:#dcd6ff; background:var(--glass); border:1px solid var(--border); backdrop-filter:blur(12px); animation:badgeFloat 3s ease-in-out infinite; }
+  @keyframes badgeFloat { 0%,100% { transform:translateY(0); box-shadow:0 0 0 rgba(106,17,203,0); } 50% { transform:translateY(-4px); box-shadow:0 0 24px rgba(106,17,203,.4); } }
+  .hero-title { font-size:clamp(2.5rem,7vw,5rem); font-weight:900; line-height:1.3; margin:20px 0; display:flex; flex-wrap:wrap; gap:16px; align-items:baseline; }
+  .wave { display:inline-block; animation:wave 3s ease-in-out infinite; }
+  @keyframes wave { 0%,100% { transform:translateY(0) rotate(0); } 25% { transform:translateY(-8px) rotate(-3deg); } 75% { transform:translateY(8px) rotate(3deg); } }
+  .grad { background:linear-gradient(90deg,#ff2e93,#6a11cb,#2575fc,#ff2e93); background-size:300% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; animation:gradMove 5s linear infinite; filter:drop-shadow(0 0 25px rgba(106,17,203,.5)); }
+  @keyframes gradMove { to { background-position:300% 0; } }
+  .hero-sub { color:var(--muted); font-size:clamp(.95rem,2vw,1.1rem); line-height:2; max-width:480px; margin-bottom:20px; }
+  .feature-list { display:flex; flex-wrap:wrap; gap:12px; margin-top:24px; }
+  .feature-chip { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:999px; font-size:.82rem; background:var(--glass); border:1px solid var(--border); color:#dcd6ff; transition:transform .25s, background .25s; }
+  .feature-chip:hover { transform:translateY(-3px); background:rgba(255,255,255,.12); }
+
+  .editor-card { position:relative; background:linear-gradient(145deg,rgba(25,25,48,.85),rgba(15,15,32,.9)); border:1px solid var(--border); border-radius:22px; padding:18px; backdrop-filter:blur(20px); box-shadow:0 25px 60px rgba(0,0,0,.5),0 0 40px rgba(106,17,203,.2); transition: box-shadow .4s ease, transform .4s ease; }
+  .editor-card.growing { animation: cardGrow .7s ease; }
+  @keyframes cardGrow { 0% { transform: scale(1); } 40% { transform: scale(1.008); box-shadow: 0 25px 60px rgba(0,0,0,.5), 0 0 70px rgba(37,117,252,.55); } 100% { transform: scale(1); } }
+  .editor-card::before { content:""; position:absolute; inset:-1px; border-radius:22px; padding:1px; background:linear-gradient(135deg,transparent,rgba(37,117,252,.5),transparent); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; opacity:.6; pointer-events:none; }
+  .editor-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+  .editor-head > span:first-child { font-weight:700; font-size:.95rem; }
+  .editor-tools { display:flex; gap:6px; align-items:center; }
+  .load-file-btn { font-family:inherit; font-size:.78rem; font-weight:700; color:#fff; background:linear-gradient(135deg,#6a11cb,#2575fc); border:none; padding:8px 14px; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:transform .2s, box-shadow .2s; box-shadow:0 4px 14px rgba(37,117,252,.35); }
+  .load-file-btn:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(37,117,252,.5); }
+  .mini-samples { display:flex; gap:6px; }
+  .mini-btn { width:34px; height:34px; border-radius:10px; border:1px solid var(--border); background:var(--glass); cursor:pointer; font-size:1rem; display:grid; place-items:center; transition:transform .2s, background .2s; }
+  .mini-btn:hover { transform:scale(1.15) rotate(6deg); background:rgba(37,117,252,.25); }
+
+  .detect-badge { display:none; margin-bottom:10px; padding:8px 14px; border-radius:12px; font-size:.8rem; font-weight:700; align-items:center; gap:8px; background:rgba(255,255,255,.06); border:1px solid var(--border); animation:badgeIn .4s cubic-bezier(.2,.9,.3,1.4); }
+  .detect-badge.show { display:inline-flex; }
+  .detect-badge .dot { width:8px; height:8px; border-radius:50%; animation:dotPulse 1.6s ease-in-out infinite; }
+  @keyframes badgeIn { from { opacity:0; transform:translateX(-10px) scale(.9); } to { opacity:1; transform:translateX(0) scale(1); } }
+  @keyframes dotPulse { 0%,100% { opacity:1; } 50% { opacity:.5; } }
+
+  #codeInput { width:100%; min-height:280px; height:280px; resize:none; overflow-y:hidden; direction:ltr; text-align:left; font-family:'Courier New', monospace; font-size:.85rem; line-height:1.7; color:#e9e9ff; background:#070712; border:1px solid var(--border); border-radius:14px; padding:14px; outline:none; transition: border-color .25s, box-shadow .25s, height .35s cubic-bezier(.2,.9,.3,1); }
+  #codeInput:focus { border-color:rgba(37,117,252,.8); box-shadow:0 0 0 3px rgba(37,117,252,.2),0 0 24px rgba(37,117,252,.15); }
+
+  .editor-actions { display:flex; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap; }
+  .btn-run { flex:1; min-width:140px; font-family:inherit; font-weight:700; font-size:.95rem; color:#fff; padding:14px 24px; border-radius:14px; cursor:pointer; border:none; background:linear-gradient(135deg,#16a34a,#22c55e); box-shadow:0 8px 22px rgba(34,197,94,.3); transition:transform .2s, box-shadow .2s; position:relative; overflow:hidden; }
+  .btn-run:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(34,197,94,.5); }
+  .btn-run::after { content:""; position:absolute; top:0; left:-100%; width:50%; height:100%; background:linear-gradient(120deg,transparent,rgba(255,255,255,.4),transparent); transform:skewX(-20deg); animation:shine 3s infinite; }
+  @keyframes shine { 0% { left:-100%; } 60%,100% { left:150%; } }
+  .btn-clear { font-family:inherit; font-weight:600; font-size:.85rem; color:#fff; padding:14px 18px; border-radius:14px; cursor:pointer; border:1px solid var(--border); background:var(--glass); transition:background .2s, border-color .2s; }
+  .btn-clear:hover { background:rgba(255,46,147,.15); border-color:rgba(255,46,147,.4); color:#ff8cc3; }
+  .btn-share-game { font-family:inherit; font-weight:700; font-size:.85rem; color:#fff; padding:14px 18px; border-radius:14px; cursor:pointer; border:none; background:linear-gradient(135deg,#f59e0b,#ff2e93); box-shadow:0 8px 22px rgba(255,46,147,.3); transition:transform .2s, box-shadow .2s; display:inline-flex; align-items:center; gap:6px; }
+  .btn-share-game:hover { transform:translateY(-2px); box-shadow:0 12px 30px rgba(255,46,147,.5); }
+  .char-count { font-size:.75rem; color:var(--muted); margin-right:auto; direction:ltr; display:flex; gap:8px; flex-wrap:wrap; font-family:monospace; }
+  .char-count .stat { display:inline-flex; align-items:center; gap:3px; }
+  .char-count .stat .v { color:#b8d9ff; font-weight:700; }
+
+  .section { padding:60px 24px; max-width:1200px; margin:0 auto; }
+  .section-title { font-size:clamp(1.4rem,4vw,2.2rem); margin-bottom:24px; display:flex; align-items:center; gap:12px; }
+  .section-title::before { content:""; width:6px; height:32px; border-radius:3px; background:linear-gradient(180deg,#6a11cb,#2575fc,#ff2e93); box-shadow:0 0 20px rgba(106,17,203,.6); }
+
+  .iframe-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .btn-fullscreen { font-family:inherit; font-size:.8rem; font-weight:700; color:#dcd6ff; background:var(--glass); border:1px solid var(--border); padding:8px 14px; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:background .2s, border-color .2s; }
+  .btn-fullscreen:hover { background:rgba(255,255,255,.15); border-color:rgba(120,180,255,.5); }
+
+  .iframe-wrap { border-radius:20px; overflow:hidden; border:1px solid var(--border); box-shadow:0 25px 60px rgba(0,0,0,.5),0 0 40px rgba(106,17,203,.15); background:#fff; }
+  iframe { width:100%; height:70vh; min-height:400px; border:none; display:block; background:#fff; }
+  .output-empty { display:grid; place-items:center; min-height:300px; color:var(--muted); background:#0d0d1a; font-size:.95rem; text-align:center; padding:40px; }
+  .output-empty .icon { font-size:3rem; margin-bottom:12px; opacity:.5; animation:float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-10px); } }
+
+  .fullscreen-mode { position: fixed !important; inset: 0 !important; z-index: 9999 !important; background: #000 !important; margin: 0 !important; border-radius: 0 !important; display: flex !important; flex-direction: column !important; padding: 12px !important; }
+  .fullscreen-mode .iframe-wrap { flex: 1 !important; display: flex !important; flex-direction: column !important; border-radius: 12px !important; }
+  .fullscreen-mode iframe { flex: 1 !important; height: auto !important; min-height: 0 !important; }
+  .fullscreen-mode .btn-fullscreen { position: absolute; top: 18px; left: 18px; z-index: 10; }
+
+  /* بخش بازی‌ها */
+  .games-section { padding:60px 24px 100px; max-width:1200px; margin:0 auto; }
+  .games-intro { color:var(--muted); font-size:.92rem; line-height:1.9; margin-bottom:20px; }
+  .btn-share-main { font-family:inherit; font-weight:700; font-size:.92rem; color:#fff; padding:14px 26px; border-radius:12px; border:none; cursor:pointer; background:linear-gradient(135deg,#16a34a,#22c55e); box-shadow:0 8px 22px rgba(34,197,94,.3); transition:transform .2s, box-shadow .2s; display:inline-flex; align-items:center; gap:8px; margin-bottom:22px; }
+  .btn-share-main:hover { transform:translateY(-2px); box-shadow:0 12px 30px rgba(34,197,94,.5); }
+
+  .games-grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); }
+
+  .game-card { background:linear-gradient(145deg, rgba(30,30,55,.85), rgba(18,18,35,.9)); border:1px solid var(--border); border-radius:18px; padding:18px; cursor:pointer; position:relative; overflow:hidden; transition:transform .3s, box-shadow .3s, border-color .3s; animation:gameIn .55s cubic-bezier(.2,.9,.3,1.2) backwards; }
+  @keyframes gameIn { from { opacity:0; transform:translateY(30px) scale(.9); } to { opacity:1; transform:translateY(0) scale(1); } }
+  .game-card:hover { transform:translateY(-6px); border-color:rgba(34,197,94,.55); box-shadow:0 15px 40px rgba(0,0,0,.5), 0 0 24px rgba(34,197,94,.3); }
+  .game-card::after { content:"▶ بازی کن"; position:absolute; top:12px; left:12px; font-size:.7rem; font-weight:700; padding:4px 10px; border-radius:999px; background:rgba(34,197,94,.9); color:#fff; opacity:0; transform:translateY(-6px); transition:opacity .3s, transform .3s; pointer-events:none; }
+  .game-card:hover::after { opacity:1; transform:translateY(0); }
+
+  .game-emoji { font-size:2.5rem; margin-bottom:10px; display:block; filter:drop-shadow(0 0 10px rgba(34,197,94,.4)); }
+  .game-title { font-weight:800; font-size:1.05rem; margin-bottom:6px; color:#fff; }
+  .game-author { font-size:.78rem; color:var(--muted); margin-bottom:12px; }
+  .game-actions { display:flex; gap:6px; flex-wrap:wrap; }
+  .game-actions button { font-family:inherit; font-size:.72rem; font-weight:700; padding:5px 10px; border-radius:999px; cursor:pointer; border:1px solid var(--border); background:rgba(255,255,255,.06); color:#b8d9ff; transition:background .2s; }
+  .game-actions button:hover { background:rgba(255,255,255,.15); }
+  .game-actions button.del { color:#ffb3b3; border-color:rgba(255,80,80,.3); }
+  .game-actions button.del:hover { background:rgba(255,60,60,.2); }
+
+  .no-games { grid-column: 1 / -1; text-align: center; padding: 50px 20px; color: var(--muted); }
+  .no-games .big { font-size: 3rem; margin-bottom: 14px; opacity: .5; animation: float 3s ease-in-out infinite; }
+
+  /* فایل‌ها */
+  .files-section { padding:60px 24px 100px; max-width:1100px; margin:0 auto; }
+  .files-intro { color:var(--muted); font-size:.92rem; line-height:1.9; margin-bottom:24px; }
+  .drop-zone { position:relative; display:block; border:2px dashed rgba(120,180,255,.4); border-radius:22px; padding:50px 24px; text-align:center; cursor:pointer; background:linear-gradient(145deg, rgba(25,25,48,.6), rgba(15,15,32,.7)); backdrop-filter:blur(12px); transition:border-color .3s, background .3s, transform .3s, box-shadow .3s; overflow:hidden; }
+  .drop-zone::before { content:""; position:absolute; inset:0; background:radial-gradient(circle at 50% 0%, rgba(37,117,252,.15), transparent 60%); opacity:0; transition:opacity .4s; pointer-events:none; }
+  .drop-zone:hover { border-color:rgba(120,180,255,.8); transform:translateY(-2px); box-shadow:0 15px 40px rgba(0,0,0,.4),0 0 30px rgba(37,117,252,.2); }
+  .drop-zone:hover::before { opacity:1; }
+  .drop-zone.dragover { border-color:#22c55e; background:linear-gradient(145deg, rgba(22,163,74,.2), rgba(15,15,32,.9)); box-shadow:0 0 40px rgba(34,197,94,.4); transform:scale(1.01); }
+  .drop-zone input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .drop-icon { font-size:3.5rem; margin-bottom:14px; animation:dropFloat 2.5s ease-in-out infinite; display:inline-block; }
+  @keyframes dropFloat { 0%,100% { transform:translateY(0) rotate(-3deg); } 50% { transform:translateY(-10px) rotate(3deg); } }
+  .drop-text { font-size:1.05rem; font-weight:700; margin-bottom:6px; }
+  .drop-hint { font-size:.82rem; color:var(--muted); }
+
+  .files-grid { display:grid; gap:16px; margin-top:26px; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); }
+  .file-card { background:linear-gradient(145deg, rgba(30,30,55,.85), rgba(18,18,35,.9)); border:1px solid var(--border); border-radius:18px; padding:18px; display:flex; flex-direction:column; gap:12px; cursor:pointer; position:relative; transition:transform .3s, box-shadow .3s, border-color .3s; animation:fileIn .5s cubic-bezier(.2,.9,.3,1.2) backwards; }
+  @keyframes fileIn { from { opacity:0; transform:scale(.9) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
+  .file-card:hover { transform:translateY(-5px); border-color:rgba(120,180,255,.5); box-shadow:0 15px 35px rgba(0,0,0,.5),0 0 24px rgba(37,117,252,.25); }
+  .file-top { display:flex; align-items:center; gap:12px; }
+  .file-icon { width:48px; height:48px; border-radius:12px; display:grid; place-items:center; font-size:1.6rem; background:linear-gradient(135deg, rgba(106,17,203,.25), rgba(37,117,252,.25)); border:1px solid rgba(120,180,255,.25); flex-shrink:0; }
+  .file-info { flex:1; min-width:0; }
+  .file-name { font-weight:700; font-size:.92rem; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; direction:ltr; text-align:right; }
+  .file-meta { font-size:.75rem; color:var(--muted); display:flex; gap:8px; flex-wrap:wrap; }
+  .file-actions { display:flex; gap:6px; }
+  .file-load, .file-delete { font-family:inherit; font-size:.72rem; font-weight:600; padding:5px 10px; border-radius:999px; cursor:pointer; }
+  .file-load { color:#b8d9ff; background:rgba(37,117,252,.15); border:1px solid rgba(37,117,252,.4); }
+  .file-load:hover { background:rgba(37,117,252,.3); }
+  .file-delete { color:#ffb3b3; background:rgba(255,60,60,.1); border:1px solid rgba(255,80,80,.3); }
+  .file-delete:hover { background:rgba(255,60,60,.25); border-color:rgba(255,80,80,.7); }
+  .files-empty { grid-column:1 / -1; text-align:center; padding:40px 20px; color:var(--muted); font-size:.9rem; }
+
+  .preview-overlay { position:fixed; inset:0; z-index:1000; background:rgba(0,5,15,.85); backdrop-filter:blur(10px); display:none; align-items:center; justify-content:center; padding:20px; opacity:0; transition:opacity .3s; }
+  .preview-overlay.open { display:flex; opacity:1; }
+  .preview-box { width:100%; max-width:1100px; max-height:92vh; background:linear-gradient(155deg, rgba(22,22,42,.98), rgba(12,12,26,.99)); border:1px solid rgba(120,180,255,.3); border-radius:20px; overflow:hidden; display:flex; flex-direction:column; transform:scale(.92); opacity:0; transition:transform .35s cubic-bezier(.2,.9,.3,1.3), opacity .3s; box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 50px rgba(37,117,252,.2); }
+  .preview-overlay.open .preview-box { transform:scale(1); opacity:1; }
+  .preview-head { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border); background:rgba(0,0,0,.3); flex-shrink:0; gap:10px; }
+  .preview-name { font-weight:700; font-size:.95rem; direction:ltr; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .preview-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .preview-btn { font-family:inherit; font-size:.8rem; padding:7px 14px; border-radius:999px; cursor:pointer; border:1px solid var(--border); background:var(--glass); color:#dcd6ff; }
+  .preview-btn:hover { background:rgba(255,255,255,.15); }
+  .preview-btn.primary { background:linear-gradient(135deg,#6a11cb,#2575fc); border:none; color:#fff; }
+  .preview-btn.close { color:#ffb3b3; border-color:rgba(255,80,80,.3); }
+  .preview-body { flex:1; overflow:auto; background:#0a0a18; display:flex; align-items:center; justify-content:center; min-height:300px; }
+  .preview-body iframe { width:100%; height:80vh; border:none; background:#fff; }
+  .preview-body img { max-width:100%; max-height:80vh; object-fit:contain; padding:20px; }
+  .preview-body video, .preview-body audio { max-width:100%; max-height:80vh; }
+  .preview-body pre { width:100%; padding:20px; color:#e9e9ff; direction:ltr; text-align:left; font-family:'Courier New', monospace; font-size:.85rem; line-height:1.7; white-space:pre-wrap; word-break:break-word; }
+  .preview-unsupported { padding:50px 20px; text-align:center; color:var(--muted); font-size:.95rem; line-height:1.9; }
+
+  .toast { position:fixed; bottom:26px; left:50%; transform:translate(-50%, 24px); background:linear-gradient(135deg, rgba(30,30,55,.98), rgba(20,20,40,.98)); border:1px solid var(--border); padding:14px 26px; border-radius:14px; font-size:.9rem; font-weight:600; box-shadow:0 15px 40px rgba(0,0,0,.6), 0 0 30px rgba(37,117,252,.25); opacity:0; pointer-events:none; transition:opacity .3s, transform .3s; z-index:2000; max-width:90vw; direction:rtl; }
+  .toast.show { opacity:1; transform:translate(-50%, 0); }
+  .toast.success { border-color:rgba(34,197,94,.5); }
+  .toast.error { border-color:rgba(255,80,80,.5); }
+
+  /* دکمه شناور */
+  .fab-feedback { position: fixed; bottom: 24px; left: 24px; z-index: 5000; width: 62px; height: 62px; border-radius: 50%; background: linear-gradient(135deg, #ff2e93, #6a11cb, #2575fc); display: grid; place-items: center; font-size: 1.6rem; box-shadow: 0 10px 30px rgba(255,46,147,.5), 0 0 20px rgba(106,17,203,.4); cursor: grab; user-select: none; transition: transform .2s, box-shadow .2s; touch-action: none; animation: fabPulse 3s ease-in-out infinite; }
+  @keyframes fabPulse { 0%,100% { box-shadow: 0 10px 30px rgba(255,46,147,.5), 0 0 20px rgba(106,17,203,.4); } 50% { box-shadow: 0 12px 40px rgba(255,46,147,.8), 0 0 35px rgba(37,117,252,.6); } }
+  .fab-feedback:hover { transform: scale(1.1); animation: none; }
+  .fab-feedback.dragging { cursor: grabbing; transform: scale(1.05); animation: none; }
+  .fab-feedback .tooltip { position: absolute; bottom: 72px; left: 50%; transform: translateX(-50%); background: rgba(20,20,40,.95); color: #fff; font-size: .75rem; font-weight: 600; padding: 8px 14px; border-radius: 10px; white-space: nowrap; border: 1px solid var(--border); pointer-events: none; opacity: 0; transition: opacity .25s; }
+  .fab-feedback:hover .tooltip { opacity: 1; }
+  .fab-feedback .badge-notif { position: absolute; top: -4px; right: -4px; background: #ff2e93; color: #fff; font-size: .7rem; font-weight: 900; min-width: 20px; height: 20px; border-radius: 10px; display: none; place-items: center; padding: 0 5px; }
+  .fab-feedback .badge-notif.show { display: grid; animation: badgePop .4s ease; }
+  @keyframes badgePop { 0% { transform: scale(0); } 70% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+  /* ============================================================
+     مدال‌ها با انیمیشن سه‌بعدی بهتر
+     ============================================================ */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 3000;
+    background: rgba(0,5,15,.85);
+    backdrop-filter: blur(0px);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity .35s ease, backdrop-filter .4s ease;
+    overflow-y: auto;
+    perspective: 1200px;
+  }
+  .modal-overlay.open {
+    display: flex;
+    opacity: 1;
+    backdrop-filter: blur(14px);
+  }
+  .modal-box {
+    width: 100%; max-width: 520px;
+    background: linear-gradient(155deg, rgba(28,28,50,.98), rgba(15,15,30,.99));
+    border: 1px solid rgba(120,180,255,.35);
+    border-radius: 24px;
+    padding: 30px 26px 24px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.7), 0 0 60px rgba(37,117,252,.25);
+    transform: scale(.75) translateY(60px) rotateX(15deg);
+    opacity: 0;
+    transition: transform .55s cubic-bezier(.34, 1.56, .64, 1), opacity .35s ease;
+    transform-origin: center center;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-overlay.open .modal-box {
+    transform: scale(1) translateY(0) rotateX(0);
+    opacity: 1;
+  }
+  .modal-box.wide { max-width: 800px; }
+  .modal-box.huge { max-width: 95vw; }
+  .modal-box::-webkit-scrollbar { width: 8px; }
+  .modal-box::-webkit-scrollbar-thumb { background: rgba(120,180,255,.4); border-radius: 4px; }
+
+  .modal-x { position: absolute; top: 14px; left: 14px; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.08); border: 1px solid var(--border); color: #fff; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s, transform .35s; }
+  .modal-x:hover { background: rgba(255,90,90,.35); transform: rotate(180deg) scale(1.1); }
+
+  .modal-emoji { font-size: 3rem; text-align: center; margin-bottom: 6px; animation: modalFloat 3s ease-in-out infinite; }
+  @keyframes modalFloat { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-8px) rotate(4deg); } }
+  .modal-h2 { font-size: 1.4rem; font-weight: 800; text-align: center; margin-bottom: 6px; background: linear-gradient(90deg,#fff,#b8d9ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .modal-desc { text-align: center; color: var(--muted); font-size: .85rem; line-height: 1.8; margin-bottom: 22px; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-label { display: block; font-size: .82rem; color: #b8d9ff; font-weight: 700; margin-bottom: 6px; }
+  .form-input { width: 100%; font-family: inherit; font-size: .92rem; color: #fff; background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; outline: none; transition: border-color .25s, box-shadow .25s, background .25s; }
+  .form-input::placeholder { color: #7f83a0; }
+  .form-input:focus { border-color: rgba(37,117,252,.8); box-shadow: 0 0 0 3px rgba(37,117,252,.2); background: rgba(255,255,255,.08); }
+  .form-input.error { border-color: rgba(255,80,80,.8); box-shadow: 0 0 0 3px rgba(255,80,80,.2); }
+  textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
+  textarea.form-input.code { min-height: 200px; font-family: 'Courier New', monospace; font-size: .82rem; direction: ltr; text-align: left; }
+
+  .form-msg { padding: 10px 14px; border-radius: 10px; font-size: .82rem; font-weight: 700; margin-bottom: 14px; display: none; line-height: 1.7; }
+  .form-msg.show { display: block; animation: msgShake .35s ease; }
+  .form-msg.error { background: rgba(255,60,60,.15); border: 1px solid rgba(255,80,80,.4); color: #ffb3b3; }
+  .form-msg.success { background: rgba(34,197,94,.15); border: 1px solid rgba(34,197,94,.4); color: #6ee7b7; }
+  @keyframes msgShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+  .btn-primary { width: 100%; font-family: inherit; font-weight: 800; font-size: .95rem; color: #fff; padding: 14px; border-radius: 12px; border: none; cursor: pointer; background: linear-gradient(135deg, #6a11cb, #2575fc, #ff2e93); background-size: 200% 200%; box-shadow: 0 8px 24px rgba(37,117,252,.4); transition: transform .2s, box-shadow .2s, background-position .5s; margin-top: 4px; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(37,117,252,.6); background-position: 100% 0; }
+  .btn-primary:active { transform: translateY(0) scale(.98); }
+
+  .auth-switch { text-align: center; font-size: .82rem; color: var(--muted); margin-top: 16px; }
+  .auth-switch a { color: #b8d9ff; font-weight: 700; cursor: pointer; }
+  .auth-switch a:hover { text-decoration: underline; }
+
+  .admin-info { background: rgba(255,200,60,.1); border: 1px solid rgba(255,200,60,.3); border-radius: 10px; padding: 10px 14px; font-size: .8rem; color: #fbbf24; margin-bottom: 16px; line-height: 1.7; }
+
+  .reports-list { display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto; padding-left: 4px; margin-top: 4px; }
+  .report-card { background: rgba(255,255,255,.04); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; transition: border-color .2s, background .2s, transform .2s; }
+  .report-card:hover { background: rgba(255,255,255,.07); border-color: rgba(120,180,255,.4); transform: translateX(-3px); }
+  .report-card.status-resolved { opacity: .6; border-right: 4px solid #22c55e; }
+  .report-card.status-new { border-right: 4px solid #f59e0b; }
+  .report-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .report-title { font-weight: 800; font-size: .95rem; color: #fff; }
+  .report-meta { font-size: .74rem; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+  .report-body { font-size: .85rem; color: #cdd3e8; line-height: 1.7; white-space: pre-wrap; }
+  .report-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .report-actions button { font-family: inherit; font-size: .74rem; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); background: rgba(255,255,255,.06); color: #b8d9ff; transition: background .2s; }
+  .report-actions button.resolve { color: #6ee7b7; border-color: rgba(34,197,94,.4); }
+  .report-actions button.delete { color: #ffb3b3; border-color: rgba(255,80,80,.4); }
+  .no-reports { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .no-reports .big { font-size: 3rem; margin-bottom: 12px; opacity: .5; }
+
+  /* چت */
+  .chat-section { padding:60px 24px 100px; max-width:860px; margin:0 auto; }
+  .chat-intro { color:var(--muted); font-size:.92rem; line-height:1.9; margin-bottom:22px; }
+  .chat-window { background:linear-gradient(155deg, rgba(22,22,42,.95), rgba(12,12,26,.98)); border:1px solid var(--border); border-radius:24px; overflow:hidden; box-shadow:0 30px 70px rgba(0,0,0,.55),0 0 50px rgba(106,17,203,.15); position:relative; }
+  .chat-window::before { content:""; position:absolute; inset:0; border-radius:24px; padding:1px; background:linear-gradient(135deg, rgba(106,17,203,.5), transparent 40%, rgba(37,117,252,.5), transparent 80%, rgba(255,46,147,.5)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none; opacity:.8; }
+  .chat-header { display:flex; align-items:center; gap:14px; padding:18px 22px; background:linear-gradient(90deg, rgba(106,17,203,.18), rgba(37,117,252,.12)); border-bottom:1px solid var(--border); position:relative; z-index:1; }
+  .bot-avatar { width:46px; height:46px; border-radius:50%; background:linear-gradient(135deg,#6a11cb,#2575fc,#ff2e93); display:grid; place-items:center; font-size:1.4rem; box-shadow:0 0 24px rgba(37,117,252,.55); animation:avatarPulse 3s ease-in-out infinite; }
+  @keyframes avatarPulse { 0%,100% { box-shadow:0 0 24px rgba(37,117,252,.55); } 50% { box-shadow:0 0 34px rgba(255,46,147,.7); } }
+  .bot-info { flex:1; }
+  .bot-name { font-weight:700; font-size:.98rem; }
+  .bot-status { font-size:.75rem; color:#4ade80; display:inline-flex; align-items:center; gap:5px; margin-top:3px; }
+  .bot-status::before { content:""; width:7px; height:7px; border-radius:50%; background:#4ade80; box-shadow:0 0 10px #4ade80; animation:statusPulse 2s ease-in-out infinite; }
+  @keyframes statusPulse { 0%,100% { opacity:1; } 50% { opacity:.35; } }
+  .chat-reset { font-family:inherit; font-size:.78rem; color:#dcd6ff; background:var(--glass); border:1px solid var(--border); padding:7px 14px; border-radius:999px; cursor:pointer; transition:background .2s; }
+  .chat-reset:hover { background:rgba(255,255,255,.14); }
+  .chat-body { height:420px; overflow-y:auto; padding:22px; display:flex; flex-direction:column; gap:14px; scroll-behavior:smooth; position:relative; z-index:1; }
+  .chat-body::-webkit-scrollbar { width:6px; }
+  .chat-body::-webkit-scrollbar-thumb { background:rgba(106,17,203,.5); border-radius:3px; }
+  .msg { max-width:85%; padding:14px 18px; border-radius:18px; font-size:.9rem; line-height:1.75; animation:msgIn .4s cubic-bezier(.2,.9,.3,1.3); word-wrap:break-word; }
+  @keyframes msgIn { from { opacity:0; transform:translateY(14px) scale(.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+  .msg.bot { align-self:flex-start; background:linear-gradient(145deg, rgba(35,35,60,.95), rgba(22,22,42,.95)); border:1px solid var(--border); border-bottom-right-radius:6px; color:#dde0f0; }
+  .msg.user { align-self:flex-end; background:linear-gradient(135deg,#6a11cb,#2575fc); border-bottom-left-radius:6px; color:#fff; box-shadow:0 8px 22px rgba(37,117,252,.35); }
+  .msg.bot .bot-lines { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
+  .msg.bot .bot-line { padding:5px 0; border-bottom:1px dashed rgba(255,255,255,.06); opacity:0; transform:translateX(-8px); animation:lineIn .35s ease-out forwards; }
+  .msg.bot .bot-line:last-child { border-bottom:none; }
+  @keyframes lineIn { to { opacity:1; transform:translateX(0); } }
+  .msg.bot .num { display:inline-block; min-width:24px; color:#6ec0ff; font-weight:700; margin-left:4px; }
+  .typing { align-self:flex-start; display:inline-flex; gap:6px; padding:14px 20px; background:rgba(35,35,60,.95); border:1px solid var(--border); border-radius:18px; border-bottom-right-radius:6px; animation:msgIn .3s ease-out; }
+  .typing span { width:8px; height:8px; border-radius:50%; background:#6ec0ff; animation:typingBounce 1.2s infinite; }
+  .typing span:nth-child(2) { animation-delay:.2s; }
+  .typing span:nth-child(3) { animation-delay:.4s; }
+  @keyframes typingBounce { 0%,60%,100% { opacity:.3; transform:translateY(0); } 30% { opacity:1; transform:translateY(-6px); } }
+  .suggestions { padding:14px 22px 8px; display:flex; gap:8px; flex-wrap:wrap; border-top:1px solid var(--border); background:rgba(10,10,22,.6); position:relative; z-index:1; }
+  .chip { font-family:inherit; font-size:.78rem; font-weight:600; color:#dcd6ff; background:rgba(255,255,255,.06); border:1px solid var(--border); padding:8px 14px; border-radius:999px; cursor:pointer; transition:transform .2s, background .2s, border-color .2s; display:inline-flex; align-items:center; gap:6px; }
+  .chip:hover { transform:translateY(-2px); background:linear-gradient(135deg, rgba(106,17,203,.35), rgba(37,117,252,.35)); border-color:rgba(37,117,252,.7); }
+  .chip:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+  .chat-input-area { display:flex; gap:10px; padding:14px 18px 18px; background:rgba(10,10,22,.8); border-top:1px solid var(--border); position:relative; z-index:1; }
+  #chatInput { flex:1; font-family:inherit; font-size:.92rem; color:#fff; background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:14px; padding:14px 18px; outline:none; transition:border-color .25s, box-shadow .25s; }
+  #chatInput::placeholder { color:#7f83a0; }
+  #chatInput:focus { border-color:rgba(37,117,252,.8); box-shadow:0 0 0 3px rgba(37,117,252,.2); background:rgba(255,255,255,.08); }
+  #sendBtn { font-family:inherit; font-weight:700; font-size:.92rem; color:#fff; padding:14px 26px; border-radius:14px; border:none; cursor:pointer; background:linear-gradient(135deg,#6a11cb,#2575fc); box-shadow:0 8px 22px rgba(37,117,252,.35); transition:transform .2s, box-shadow .2s; display:inline-flex; align-items:center; gap:6px; }
+  #sendBtn:hover { transform:translateY(-2px); box-shadow:0 12px 30px rgba(37,117,252,.5); }
+  #sendBtn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+  footer { text-align:center; padding:30px 20px; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); }
+  .reveal { opacity:0; transform:translateY(40px); transition:opacity .8s cubic-bezier(.2,.9,.3,1), transform .8s cubic-bezier(.2,.9,.3,1); }
+  .reveal.revealed { opacity:1; transform:translateY(0); }
+
+  .game-frame-wrap { border-radius: 16px; overflow: hidden; border: 1px solid var(--border); background: #fff; margin-top: 10px; }
+
+  @media (max-width:600px) {
+    .hero { padding:24px 16px; min-height:auto; }
+    .hero-title { font-size:2.5rem; }
+    .section, .files-section, .chat-section, .games-section { padding:40px 16px; }
+    .editor-card { padding:14px; }
+    #codeInput { min-height:220px; }
+    .chat-body { height:360px; padding:16px; }
+    .msg { font-size:.85rem; }
+    #chatInput { padding:12px 14px; }
+    #sendBtn { padding:12px 18px; }
+    .drop-zone { padding:34px 18px; }
+    .drop-icon { font-size:2.6rem; }
+    .load-file-btn span { display:none; }
+    .load-file-btn { padding:8px 10px; }
+    .fab-feedback { width: 52px; height: 52px; font-size: 1.3rem; bottom: 16px; left: 16px; }
+    .fab-feedback .tooltip { font-size: .7rem; padding: 6px 10px; }
+    .creator-banner { padding: 10px 14px; font-size: .78rem; flex-direction: column; text-align: center; }
+    .creator-info { font-size: .8rem; }
+    .auth-area { width: 100%; justify-content: center; }
+    .modal-box { padding: 22px 18px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-orbs"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+<div class="particles" id="particles"></div>
+
+<div class="creator-banner">
+  <span class="sparkle">✨</span><span class="sparkle">⭐</span><span class="sparkle">💫</span><span class="sparkle">✨</span><span class="sparkle">⭐</span>
+  <div class="creator-info">
+    <span class="crown">👑</span>
+    ساخته‌شده توسط <strong>پارسا خیری</strong> با کمک <span class="deepseek">🤖 DeepSeek</span>
+  </div>
+  <div class="auth-area">
+    <div id="authGuest" style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="nav-btn" id="loginBtn">🔐 ورود</button>
+      <button class="nav-btn primary" id="signupBtn">✍️ ثبت‌نام</button>
+    </div>
+    <div id="authUser" style="display:none; gap:8px; flex-wrap:wrap; align-items:center;">
+      <span class="user-badge" id="welcomeUser"></span>
+      <button class="nav-btn admin" id="adminBtn" style="display:none;">👑 پنل مدیر <span id="adminBadge" style="display:none;"></span></button>
+      <button class="nav-btn" id="logoutBtn">🚪 خروج</button>
+    </div>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="hero-grid">
+    <div class="hero-text reveal">
+      <div class="badge">✦ خوش آمدید</div>
+      <h1 class="hero-title"><span class="wave">سلام</span><span class="grad">دنیای کد</span></h1>
+      <p class="hero-sub">کدت رو بنویس، فایل بارگذاری کن، بازی بساز و با همه به اشتراک بذار!</p>
+      <div class="feature-list">
+        <span class="feature-chip">⚡ اجرای سریع</span>
+        <span class="feature-chip">📏 رشد خودکار ادیتور</span>
+        <span class="feature-chip">🎮 اشتراک بازی</span>
+        <span class="feature-chip">🖥 تمام‌صفحه</span>
+        <span class="feature-chip">🐛 گزارش باگ</span>
+        <span class="feature-chip">👤 اکانت کاربری</span>
+      </div>
+    </div>
+
+    <div class="editor-card reveal" id="editorCard">
+      <div class="editor-head">
+        <span>📝 کدت رو بنویس</span>
+        <div class="editor-tools">
+          <button class="load-file-btn" id="loadFileBtn" title="بارگذاری فایل کد">📂 <span>فایل</span></button>
+          <div class="mini-samples">
+            <button class="mini-btn" data-sample="palette" title="پالت رنگ">🎨</button>
+            <button class="mini-btn" data-sample="clock" title="ساعت">🕐</button>
+            <button class="mini-btn" data-sample="balls" title="توپ‌ها">⚽</button>
+            <button class="mini-btn" data-sample="gradient" title="گرادیان">✨</button>
+          </div>
+        </div>
+      </div>
+
+      <input type="file" id="editorFileInput" accept=".html,.htm,.js,.css,.txt,.json,.md,.xml,.svg,text/*" hidden>
+
+      <div class="detect-badge" id="detectBadge">
+        <span class="dot" id="detectDot"></span>
+        <span id="detectLabel">—</span>
+      </div>
+
+      <textarea id="codeInput" spellcheck="false" placeholder="<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Hello World!</h1>
+  </body>
+</html>"></textarea>
+
+      <div class="editor-actions">
+        <button id="runBtn" class="btn-run">▶ اجرای کد</button>
+        <button id="clearBtn" class="btn-clear">🗑 پاک</button>
+        <button id="shareGameFromEditorBtn" class="btn-share-game">🎮 اشتراک بازی</button>
+        <span class="char-count" id="charCount">
+          <span class="stat">📝 <span class="v" id="lineStat">0</span> خط</span>
+          <span class="stat">💬 <span class="v" id="charStat">0</span> کاراکتر</span>
+          <span class="stat">📦 <span class="v" id="sizeStat">0</span> KB</span>
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal" id="outputSection">
+  <h2 class="section-title">خروجی اجرا</h2>
+  <div class="iframe-header">
+    <span></span>
+    <button class="btn-fullscreen" id="fullscreenBtn" title="نمایش تمام‌صفحه">⛶ تمام‌صفحه</button>
+  </div>
+  <div class="iframe-wrap" id="iframeWrap">
+    <div class="output-empty" id="outputEmpty">
+      <div><div class="icon">⌨️</div><div>کدت رو بنویس یا فایل بارگذاری کن، بعد «اجرا» بزن</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 🎮 بخش بازی‌های اشتراکی -->
+<section class="games-section reveal" id="gamesSection">
+  <h2 class="section-title">🎮 بازی‌های ساخته‌شده</h2>
+  <p class="games-intro">
+    بازی‌هایی که کاربران ساختن و به اشتراک گذاشتن. روی هر کارت بزن تا بازیش کنی! 🕹️
+  </p>
+  <button class="btn-share-main" id="shareGameBtn">🎮 بازی خودت رو به اشتراک بذار</button>
+  <div class="games-grid" id="gamesGrid">
+    <div class="no-games"><div class="big">🎮</div><div>هنوز بازی‌ای به اشتراک گذاشته نشده — تو اولین نفر باش!</div></div>
+  </div>
+</section>
+
+<section class="files-section reveal" id="filesSection">
+  <h2 class="section-title">📁 فایل‌های ذخیره شده</h2>
+  <p class="files-intro">
+    هر فایلی (HTML، JS، CSS، عکس، PDF و...) رو اینجا بنداز یا کلیک کن تا انتخاب کنی.
+  </p>
+  <label class="drop-zone" id="dropZone">
+    <div class="drop-icon">📤</div>
+    <div class="drop-text">فایل رو اینجا بنداز</div>
+    <div class="drop-hint">یا کلیک کن تا انتخاب کنی — چند فایل همزمان هم پشتیبانی می‌شه</div>
+    <input type="file" id="fileInput" multiple>
+  </label>
+  <div class="files-grid" id="filesGrid">
+    <div class="files-empty">هنوز فایلی ذخیره نکردی 🗂</div>
+  </div>
+</section>
+
+<div class="preview-overlay" id="previewOverlay">
+  <div class="preview-box">
+    <div class="preview-head">
+      <div class="preview-name" id="previewName">file</div>
+      <div class="preview-actions">
+        <button class="preview-btn primary" id="previewLoad">📝 لود در ادیتور</button>
+        <button class="preview-btn" id="previewDownload">⬇ دانلود</button>
+        <button class="preview-btn close" id="previewClose">✕ بستن</button>
+      </div>
+    </div>
+    <div class="preview-body" id="previewBody"></div>
+  </div>
+</div>
+
+<section class="chat-section reveal" id="chatSection">
+  <h2 class="section-title">🤖 دستیار یادگیری کدنویسی</h2>
+  <p class="chat-intro">هر سوالی داری همین‌جا بپرس یا از گزینه‌های پایین یکی رو بزن 👇</p>
+  <div class="chat-window">
+    <div class="chat-header">
+      <div class="bot-avatar">🤖</div>
+      <div class="bot-info"><div class="bot-name">دستیار کدنویسی</div><div class="bot-status">آنلاین</div></div>
+      <button class="chat-reset" id="chatReset">↻ گفتگوی جدید</button>
+    </div>
+    <div class="chat-body" id="chatBody"></div>
+    <div class="suggestions" id="suggestions"></div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="سوال بپرس..." autocomplete="off" />
+      <button id="sendBtn">ارسال ➤</button>
+    </div>
+  </div>
+</section>
+
+<footer>ساخته‌شده با 💜 توسط پارسا خیری و DeepSeek — برای یادگیری برنامه‌نویسی</footer>
+
+<div class="fab-feedback" id="fabFeedback" title="گزارش باگ / مشکل">
+  🐛
+  <span class="tooltip">🐛 گزارش باگ / مشکل</span>
+  <span class="badge-notif" id="fabBadge"></span>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- مودال ورود/ثبت‌نام -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal-box">
+    <button class="modal-x" id="authClose">✕</button>
+    <div class="modal-emoji" id="authEmoji">🔐</div>
+    <h2 class="modal-h2" id="authTitle">ورود به حساب</h2>
+    <p class="modal-desc" id="authDesc">وارد شو تا بتونی ادامه بدی</p>
+    <div class="form-msg" id="authMsg"></div>
+    <div class="form-group">
+      <label class="form-label">اسم کاربری</label>
+      <input type="text" class="form-input" id="authUsername" placeholder="اسم کاربری‌ات رو بنویس" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label">رمز عبور</label>
+      <input type="password" class="form-input" id="authPassword" placeholder="رمز عبورت رو وارد کن">
+    </div>
+    <div class="form-group" id="authConfirmGroup" style="display:none;">
+      <label class="form-label">تکرار رمز عبور</label>
+      <input type="password" class="form-input" id="authPassword2" placeholder="دوباره رمز رو بزن">
+    </div>
+    <button class="btn-primary" id="authSubmit">تایید و ادامه</button>
+    <div class="auth-switch" id="authSwitchText">هنوز اکانت نداری؟ <a id="authSwitchBtn">ثبت‌نام کن</a></div>
+  </div>
+</div>
+
+<!-- مودال گزارش باگ -->
+<div class="modal-overlay" id="bugModal">
+  <div class="modal-box">
+    <button class="modal-x" id="bugClose">✕</button>
+    <div class="modal-emoji">🐛</div>
+    <h2 class="modal-h2">گزارش باگ / مشکل</h2>
+    <p class="modal-desc">مشکلی دیدی؟ باگ پیدا کردی؟ به من (مدیر سایت) بگو تا حلش کنم 🙏</p>
+    <div class="form-msg" id="bugMsg"></div>
+    <div class="form-group">
+      <label class="form-label">عنوان مشکل</label>
+      <input type="text" class="form-input" id="bugTitle" placeholder="مشکل رو خلاصه بنویس">
+    </div>
+    <div class="form-group">
+      <label class="form-label">توضیح کامل</label>
+      <textarea class="form-input" id="bugText" placeholder="مشکل رو دقیق بنویس — کِی پیش اومد، چی دیدی، چی انتظار داشتی..."></textarea>
+    </div>
+    <button class="btn-primary" id="bugSubmit">📤 ارسال گزارش به مدیر</button>
+  </div>
+</div>
+
+<!-- مودال پنل مدیر -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal-box wide">
+    <button class="modal-x" id="adminClose">✕</button>
+    <div class="modal-emoji">👑</div>
+    <h2 class="modal-h2">پنل مدیر</h2>
+    <p class="modal-desc">همه‌ی گزارش‌های کاربران — می‌تونی بررسی و حلشون کنی</p>
+    <div class="admin-info">💡 تو به عنوان <strong>مدیر</strong> وارد شدی. گزارش‌های ارسال‌شده رو اینجا می‌بینی.</div>
+    <div id="reportsList" class="reports-list"></div>
+  </div>
+</div>
+
+<!-- مودال اشتراک بازی -->
+<div class="modal-overlay" id="gameModal">
+  <div class="modal-box">
+    <button class="modal-x" id="gameClose">✕</button>
+    <div class="modal-emoji">🎮</div>
+    <h2 class="modal-h2">بازی خودت رو به اشتراک بذار</h2>
+    <p class="modal-desc">کد بازی‌ات رو اینجا بذار تا همه ببینن و بتونن بازی کنن</p>
+    <div class="form-msg" id="gameMsg"></div>
+    <div class="form-group">
+      <label class="form-label">اسم بازی</label>
+      <input type="text" class="form-input" id="gameTitleInput" placeholder="مثلاً: بازی مار">
+    </div>
+    <div class="form-group">
+      <label class="form-label">کد بازی (HTML / JS / CSS)</label>
+      <textarea class="form-input code" id="gameCodeInput" placeholder="<!DOCTYPE html>..."></textarea>
+    </div>
+    <button class="btn-primary" id="gameSubmit">🎮 ارسال بازی</button>
+  </div>
+</div>
+
+<!-- مودال بازی کردن -->
+<div class="modal-overlay" id="playGameModal">
+  <div class="modal-box huge">
+    <button class="modal-x" id="playClose">✕</button>
+    <h2 class="modal-h2" id="playTitle" style="margin-bottom:4px;">بازی</h2>
+    <p class="modal-desc" id="playAuthor" style="margin-bottom:14px;"></p>
+    <div class="game-frame-wrap">
+      <iframe id="playFrame" sandbox="allow-scripts allow-forms allow-modals allow-popups" allowfullscreen style="width: 100%; height: 65vh; border: none; display: block; background: #fff;"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ذرات */
+(function () {
+  const c = document.getElementById('particles');
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const s = 2 + Math.random() * 4;
+    p.style.width = s + 'px';
+    p.style.height = s + 'px';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDelay = (Math.random() * 25) + 's';
+    p.style.animationDuration = (18 + Math.random() * 20) + 's';
+    c.appendChild(p);
+  }
+})();
+
+/* توست */
+const toastEl = document.getElementById('toast');
+let toastTimer;
+function showToast(msg, type) {
+  toastEl.textContent = msg;
+  toastEl.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3000);
+}
+
+/* ==========================================================
+   🔐 اکانت‌ها
+   ========================================================== */
+const USERS_KEY = 'codeworld_users';
+const CURRENT_USER_KEY = 'codeworld_current_user';
+const REPORTS_KEY = 'codeworld_reports';
+const GAMES_KEY = 'codeworld_games';
+
+// 👑 اطلاعات مدیر — تغییر بده اگه خواستی
+const ADMIN_USERNAME = 'PARSA2026';
+const ADMIN_PASSWORD = 'G2323H56 HD';
+
+function getUsers() { try { return JSON.parse(localStorage.getItem(USERS_KEY)) || []; } catch(e) { return []; } }
+function saveUsers(u) { try { localStorage.setItem(USERS_KEY, JSON.stringify(u)); } catch(e) {} }
+function getCurrentUser() { return localStorage.getItem(CURRENT_USER_KEY) || null; }
+function setCurrentUser(u) { if (u) localStorage.setItem(CURRENT_USER_KEY, u); else localStorage.removeItem(CURRENT_USER_KEY); }
+function isAdmin() { return getCurrentUser() === ADMIN_USERNAME; }
+
+function doSignup(username, password, password2) {
+  username = username.trim();
+  if (!username) return { ok: false, msg: '⚠️ اسم کاربری رو وارد کن' };
+  if (username.length < 3) return { ok: false, msg: '⚠️ اسم حداقل ۳ حرف باشه' };
+  if (/[^آ-یa-zA-Z0-9_]/i.test(username)) return { ok: false, msg: '⚠️ فقط حروف، عدد و _ مجازه' };
+  if (!password) return { ok: false, msg: '⚠️ رمز عبور رو وارد کن' };
+  if (password.length < 4) return { ok: false, msg: '⚠️ رمز حداقل ۴ کاراکتر باشه' };
+  if (password !== password2) return { ok: false, msg: '⚠️ دو رمز یکی نیستن!' };
+
+  if (username.toLowerCase() === ADMIN_USERNAME.toLowerCase()) {
+    return { ok: false, msg: '🚫 این اسم مال مدیره! اسم دیگه‌ای انتخاب کن.' };
+  }
+  const users = getUsers();
+  if (users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+    return { ok: false, msg: '🚫 کسی با این اسم تو سایت ثبت‌نام کرده! اسم دیگه‌ای انتخاب کن.' };
+  }
+
+  users.push({ username: username, password: password, createdAt: Date.now() });
+  saveUsers(users);
+  setCurrentUser(username);
+  return { ok: true, msg: '✅ ثبت‌نام موفق! خوش اومدی ' + username };
+}
+
+function doLogin(username, password) {
+  username = username.trim();
+  if (!username) return { ok: false, msg: '⚠️ اسم کاربری رو وارد کن' };
+  if (!password) return { ok: false, msg: '⚠️ رمز عبور رو وارد کن' };
+
+  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    setCurrentUser(username);
+    return { ok: true, msg: '👑 خوش اومدی مدیر!' };
+  }
+
+  const user = getUsers().find(u => u.username.toLowerCase() === username.toLowerCase());
+  if (!user) return { ok: false, msg: '🚫 کاربری با این اسم پیدا نشد' };
+  if (user.password !== password) return { ok: false, msg: '🚫 رمز عبور اشتباهه' };
+
+  setCurrentUser(user.username);
+  return { ok: true, msg: '✅ خوش اومدی ' + user.username + '!' };
+}
+
+function doLogout() { setCurrentUser(null); }
+
+/* گزارش‌ها */
+function getReports() { try { return JSON.parse(localStorage.getItem(REPORTS_KEY)) || []; } catch(e) { return []; } }
+function saveReports(r) { try { localStorage.setItem(REPORTS_KEY, JSON.stringify(r)); } catch(e) {} }
+function addReport(title, text) {
+  const user = getCurrentUser();
+  if (!user) return { ok: false, msg: '⚠️ اول باید وارد بشی' };
+  if (!title.trim()) return { ok: false, msg: '⚠️ عنوان رو بنویس' };
+  if (!text.trim()) return { ok: false, msg: '⚠️ متن گزارش رو بنویس' };
+  const reports = getReports();
+  reports.push({ id: Date.now() + '-' + Math.random().toString(36).slice(2,7), username: user, title: title.trim(), text: text.trim(), date: Date.now(), status: 'new' });
+  saveReports(reports);
+  return { ok: true, msg: '✅ گزارش ارسال شد! ممنون 🙏' };
+}
+
+/* بازی‌ها */
+function getGames() { try { return JSON.parse(localStorage.getItem(GAMES_KEY)) || []; } catch(e) { return []; } }
+function saveGames(g) { try { localStorage.setItem(GAMES_KEY, JSON.stringify(g)); } catch(e) {} }
+function addGame(title, code) {
+  const user = getCurrentUser();
+  if (!user) return { ok: false, msg: '⚠️ اول باید وارد بشی' };
+  if (!title.trim()) return { ok: false, msg: '⚠️ اسم بازی رو بنویس' };
+  if (!code.trim()) return { ok: false, msg: '⚠️ کد بازی رو بذار' };
+  const games = getGames();
+  games.push({ id: Date.now() + '-' + Math.random().toString(36).slice(2,7), title: title.trim(), code: code.trim(), username: user, date: Date.now() });
+  saveGames(games);
+  return { ok: true, msg: '✅ بازی به اشتراک گذاشته شد!' };
+}
+
+function updateAdminBadge() {
+  const badge = document.getElementById('adminBadge');
+  const fabBadge = document.getElementById('fabBadge');
+  const newCount = getReports().filter(r => r.status === 'new').length;
+  if (newCount > 0) {
+    badge.textContent = newCount;
+    badge.style.display = 'inline-block';
+    badge.style.background = '#ff2e93';
+    badge.style.color = '#fff';
+    badge.style.padding = '1px 7px';
+    badge.style.borderRadius = '999px';
+    badge.style.fontSize = '.7rem';
+    badge.style.fontWeight = '900';
+    if (isAdmin()) { fabBadge.textContent = newCount; fabBadge.classList.add('show'); }
+  } else {
+    badge.style.display = 'none';
+    fabBadge.classList.remove('show');
+  }
+}
+
+function updateAuthUI() {
+  const user = getCurrentUser();
+  const authGuest = document.getElementById('authGuest');
+  const authUser = document.getElementById('authUser');
+  const welcomeUser = document.getElementById('welcomeUser');
+  const adminBtn = document.getElementById('adminBtn');
+  if (user) {
+    authGuest.style.display = 'none';
+    authUser.style.display = 'flex';
+    welcomeUser.textContent = user;
+    adminBtn.style.display = isAdmin() ? 'inline-flex' : 'none';
+  } else {
+    authGuest.style.display = 'flex';
+    authUser.style.display = 'none';
+  }
+  updateAdminBadge();
+}
+
+/* مودال‌ها */
+let pendingAction = null;
+let authMode = 'login';
+
+const authModal = document.getElementById('authModal');
+const bugModal = document.getElementById('bugModal');
+const adminModal = document.getElementById('adminModal');
+const gameModal = document.getElementById('gameModal');
+const playGameModal = document.getElementById('playGameModal');
+
+function openAuthModal(mode, reason) {
+  authMode = mode || 'login';
+  document.getElementById('authEmoji').textContent = authMode === 'login' ? '🔐' : '✍️';
+  document.getElementById('authTitle').textContent = authMode === 'login' ? 'ورود به حساب' : 'ثبت‌نام';
+  document.getElementById('authDesc').textContent = reason || (authMode === 'login' ? 'وارد شو تا بتونی ادامه بدی' : 'یه اکانت بساز');
+  document.getElementById('authConfirmGroup').style.display = authMode === 'signup' ? 'block' : 'none';
+  document.getElementById('authSwitchText').innerHTML = authMode === 'login'
+    ? 'هنوز اکانت نداری؟ <a id="authSwitchBtn">ثبت‌نام کن</a>'
+    : 'قبلاً ثبت‌نام کردی؟ <a id="authSwitchBtn">وارد شو</a>';
+  document.getElementById('authSwitchBtn').addEventListener('click', () => openAuthModal(authMode === 'login' ? 'signup' : 'login', reason));
+  document.getElementById('authSubmit').textContent = authMode === 'login' ? '🔐 ورود' : '✍️ ثبت‌نام';
+  hideFormMsg('authMsg');
+  clearAuthInputs();
+  authModal.classList.add('open');
+  setTimeout(() => document.getElementById('authUsername').focus(), 400);
+}
+
+function clearAuthInputs() {
+  ['authUsername','authPassword','authPassword2'].forEach(id => document.getElementById(id).value = '');
+  document.querySelectorAll('#authModal .form-input').forEach(i => i.classList.remove('error'));
+}
+
+function openBugModal() {
+  if (!getCurrentUser()) {
+    pendingAction = 'bug';
+    openAuthModal('login', '🐛 برای ارسال گزارش باگ اول وارد شو');
+    return;
+  }
+  document.getElementById('bugTitle').value = '';
+  document.getElementById('bugText').value = '';
+  hideFormMsg('bugMsg');
+  bugModal.classList.add('open');
+  setTimeout(() => document.getElementById('bugTitle').focus(), 400);
+}
+
+function openAdminModal() {
+  if (!isAdmin()) { showToast('🚫 فقط مدیر می‌تونه پنل رو ببینه', 'error'); return; }
+  renderReports();
+  adminModal.classList.add('open');
+}
+
+function openGameModal(presetCode) {
+  if (!getCurrentUser()) {
+    pendingAction = 'game';
+    if (presetCode) window._pendingGameCode = presetCode;
+    openAuthModal('login', '🎮 برای اشتراک بازی اول وارد شو');
+    return;
+  }
+  document.getElementById('gameTitleInput').value = '';
+  document.getElementById('gameCodeInput').value = presetCode || '';
+  hideFormMsg('gameMsg');
+  gameModal.classList.add('open');
+  setTimeout(() => document.getElementById('gameTitleInput').focus(), 400);
+}
+
+/* رندر گزارش‌ها */
+function renderReports() {
+  const list = document.getElementById('reportsList');
+  const reports = getReports().sort((a,b) => b.date - a.date);
+  if (!reports.length) {
+    list.innerHTML = '<div class="no-reports"><div class="big">📭</div><div>هنوز هیچ گزارشی ارسال نشده</div></div>';
+    return;
+  }
+  list.innerHTML = '';
+  reports.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'report-card status-' + r.status;
+    const date = new Date(r.date);
+    const statusText = r.status === 'resolved' ? '✅ حل شده' : '🆕 جدید';
+    card.innerHTML = `
+      <div class="report-head">
+        <div class="report-title">${escapeHtml(r.title)}</div>
+        <span style="font-size:.72rem;color:#b8d9ff;">${statusText}</span>
+      </div>
+      <div class="report-meta">
+        <span>👤 ${escapeHtml(r.username)}</span>
+        <span>📅 ${date.toLocaleDateString('fa-IR')} — ${date.toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit'})}</span>
+      </div>
+      <div class="report-body">${escapeHtml(r.text)}</div>
+      <div class="report-actions">
+        ${r.status === 'new' ? `<button class="resolve" data-id="${r.id}" data-action="resolve">✅ حل شد</button>` : ''}
+        <button class="delete" data-id="${r.id}" data-action="delete">🗑 حذف</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+  list.querySelectorAll('button[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
+      const reports = getReports();
+      if (action === 'delete') {
+        if (!confirm('این گزارش حذف بشه؟')) return;
+        const idx = reports.findIndex(x => String(x.id) === String(id));
+        if (idx >= 0) reports.splice(idx, 1);
+        saveReports(reports);
+        renderReports();
+        updateAdminBadge();
+        showToast('🗑 گزارش حذف شد', 'success');
+      } else if (action === 'resolve') {
+        const r = reports.find(x => String(x.id) === String(id));
+        if (r) { r.status = 'resolved'; saveReports(reports); renderReports(); updateAdminBadge(); showToast('✅ علامت‌گذاری شد', 'success'); }
+      }
+    });
+  });
+}
+
+/* رندر بازی‌ها */
+function renderGames() {
+  const grid = document.getElementById('gamesGrid');
+  const games = getGames().sort((a,b) => b.date - a.date);
+  if (!games.length) {
+    grid.innerHTML = '<div class="no-games"><div class="big">🎮</div><div>هنوز بازی‌ای به اشتراک گذاشته نشده — تو اولین نفر باش!</div></div>';
+    return;
+  }
+  grid.innerHTML = '';
+  const emojis = ['🎮','🕹️','🎯','🎲','🎰','🏆','⭐','🚀','⚔️','🏁'];
+  games.forEach((g, i) => {
+    const card = document.createElement('div');
+    card.className = 'game-card';
+    card.style.animationDelay = (i * 70) + 'ms';
+    card.innerHTML = `
+      <span class="game-emoji">${emojis[i % emojis.length]}</span>
+      <div class="game-title">${escapeHtml(g.title)}</div>
+      <div class="game-author">👤 ${escapeHtml(g.username)}</div>
+      <div class="game-actions">
+        <button class="del">🗑 حذف</button>
+      </div>
+    `;
+    card.addEventListener('click', (e) => {
+      if (e.target.classList.contains('del')) return;
+      playGame(g);
+    });
+    card.querySelector('.del').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const user = getCurrentUser();
+      if (user !== g.username && !isAdmin()) {
+        showToast('🚫 فقط سازنده یا مدیر می‌تونه حذف کنه', 'error');
+        return;
+      }
+      if (!confirm('بازی «' + g.title + '» حذف بشه؟')) return;
+      saveGames(getGames().filter(x => x.id !== g.id));
+      renderGames();
+      showToast('🗑 بازی حذف شد', 'success');
+    });
+    grid.appendChild(card);
+  });
+}
+
+function playGame(g) {
+  document.getElementById('playTitle').textContent = g.title;
+  document.getElementById('playAuthor').textContent = 'ساخته ' + g.username;
+  document.getElementById('playFrame').srcdoc = g.code;
+  playGameModal.classList.add('open');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+
+function showFormMsg(id, msg, type) { const el = document.getElementById(id); el.textContent = msg; el.className = 'form-msg show ' + (type || 'error'); }
+function hideFormMsg(id) { const el = document.getElementById(id); el.className = 'form-msg'; el.textContent = ''; }
+
+/* رویدادها */
+document.getElementById('loginBtn').addEventListener('click', () => { pendingAction = null; openAuthModal('login'); });
+document.getElementById('signupBtn').addEventListener('click', () => { pendingAction = null; openAuthModal('signup'); });
+document.getElementById('logoutBtn').addEventListener('click', () => { doLogout(); updateAuthUI(); showToast('👋 خروج انجام شد', 'success'); });
+document.getElementById('adminBtn').addEventListener('click', openAdminModal);
+
+document.getElementById('authClose').addEventListener('click', () => authModal.classList.remove('open'));
+document.getElementById('bugClose').addEventListener('click', () => bugModal.classList.remove('open'));
+document.getElementById('adminClose').addEventListener('click', () => adminModal.classList.remove('open'));
+document.getElementById('gameClose').addEventListener('click', () => gameModal.classList.remove('open'));
+document.getElementById('playClose').addEventListener('click', () => { playGameModal.classList.remove('open'); setTimeout(() => document.getElementById('playFrame').srcdoc = '', 300); });
+
+[authModal, bugModal, adminModal, gameModal, playGameModal].forEach(m => {
+  m.addEventListener('click', (e) => {
+    if (e.target === m) {
+      m.classList.remove('open');
+      if (m === playGameModal) setTimeout(() => document.getElementById('playFrame').srcdoc = '', 300);
+    }
+  });
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    [authModal, bugModal, adminModal, gameModal, playGameModal].forEach(m => {
+      if (m.classList.contains('open')) {
+        m.classList.remove('open');
+        if (m === playGameModal) setTimeout(() => document.getElementById('playFrame').srcdoc = '', 300);
+      }
+    });
+  }
+});
+
+document.getElementById('authSubmit').addEventListener('click', () => {
+  const username = document.getElementById('authUsername').value;
+  const password = document.getElementById('authPassword').value;
+  const password2 = document.getElementById('authPassword2').value;
+  let result = authMode === 'login' ? doLogin(username, password) : doSignup(username, password, password2);
+  if (!result.ok) {
+    showFormMsg('authMsg', result.msg, 'error');
+    document.getElementById('authUsername').classList.add('error');
+    setTimeout(() => document.getElementById('authUsername').classList.remove('error'), 800);
+    return;
+  }
+  showFormMsg('authMsg', result.msg, 'success');
+  updateAuthUI();
+  setTimeout(() => {
+    authModal.classList.remove('open');
+    hideFormMsg('authMsg');
+    showToast(result.msg, 'success');
+    if (pendingAction === 'bug') { pendingAction = null; openBugModal(); }
+    else if (pendingAction === 'game') {
+      pendingAction = null;
+      const code = window._pendingGameCode || '';
+      window._pendingGameCode = null;
+      setTimeout(() => openGameModal(code), 200);
+    }
+  }, 700);
+});
+
+['authUsername','authPassword','authPassword2'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('authSubmit').click(); }
+  });
+});
+
+document.getElementById('bugSubmit').addEventListener('click', () => {
+  const title = document.getElementById('bugTitle').value;
+  const text = document.getElementById('bugText').value;
+  const result = addReport(title, text);
+  if (!result.ok) { showFormMsg('bugMsg', result.msg, 'error'); return; }
+  showFormMsg('bugMsg', result.msg, 'success');
+  updateAdminBadge();
+  setTimeout(() => {
+    bugModal.classList.remove('open');
+    hideFormMsg('bugMsg');
+    showToast('🐛 گزارش ارسال شد — ممنون!', 'success');
+  }, 900);
+});
+
+document.getElementById('shareGameBtn').addEventListener('click', () => openGameModal());
+document.getElementById('shareGameFromEditorBtn').addEventListener('click', () => {
+  const code = codeInput.value.trim();
+  if (!code) { showToast('⚠️ اول یه کد بنویس', 'error'); return; }
+  openGameModal(code);
+});
+
+document.getElementById('gameSubmit').addEventListener('click', () => {
+  const title = document.getElementById('gameTitleInput').value;
+  const code = document.getElementById('gameCodeInput').value;
+  const result = addGame(title, code);
+  if (!result.ok) { showFormMsg('gameMsg', result.msg, 'error'); return; }
+  showFormMsg('gameMsg', result.msg, 'success');
+  renderGames();
+  setTimeout(() => {
+    gameModal.classList.remove('open');
+    hideFormMsg('gameMsg');
+    showToast('🎮 بازی به اشتراک گذاشته شد!', 'success');
+    document.getElementById('gamesSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 900);
+});
+
+/* دکمه شناور */
+const fab = document.getElementById('fabFeedback');
+const FAB_STORAGE_KEY = 'codeworld_fab_position';
+let isDragging = false, hasMoved = false, startX, startY, startLeft, startTop;
+function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+function saveFabPosition(left, top) { try { localStorage.setItem(FAB_STORAGE_KEY, JSON.stringify({ left, top })); } catch(e) {} }
+function restoreFabPosition() {
+  try {
+    const saved = localStorage.getItem(FAB_STORAGE_KEY);
+    if (saved) {
+      const { left, top } = JSON.parse(saved);
+      const maxLeft = window.innerWidth - fab.offsetWidth;
+      const maxTop = window.innerHeight - fab.offsetHeight;
+      fab.style.left = clamp(left, 0, maxLeft) + 'px';
+      fab.style.top = clamp(top, 0, maxTop) + 'px';
+      fab.style.bottom = 'auto';
+    }
+  } catch(e) {}
+}
+function getEventPos(e) { if (e.touches && e.touches.length) return { x: e.touches[0].clientX, y: e.touches[0].clientY }; return { x: e.clientX, y: e.clientY }; }
+function onPointerDown(e) {
+  if (e.button !== undefined && e.button !== 0) return;
+  isDragging = true; hasMoved = false;
+  const pos = getEventPos(e);
+  startX = pos.x; startY = pos.y;
+  const rect = fab.getBoundingClientRect();
+  startLeft = rect.left; startTop = rect.top;
+  fab.style.bottom = 'auto';
+  fab.classList.add('dragging');
+  document.addEventListener('mousemove', onPointerMove);
+  document.addEventListener('mouseup', onPointerUp);
+  document.addEventListener('touchmove', onPointerMove, { passive: false });
+  document.addEventListener('touchend', onPointerUp);
+  e.preventDefault();
+}
+function onPointerMove(e) {
+  if (!isDragging) return;
+  const pos = getEventPos(e);
+  const dx = pos.x - startX, dy = pos.y - startY;
+  if (Math.abs(dx) > 4 || Math.abs(dy) > 4) hasMoved = true;
+  const maxLeft = window.innerWidth - fab.offsetWidth;
+  const maxTop = window.innerHeight - fab.offsetHeight;
+  fab.style.left = clamp(startLeft + dx, 0, maxLeft) + 'px';
+  fab.style.top = clamp(startTop + dy, 0, maxTop) + 'px';
+  e.preventDefault();
+}
+function onPointerUp() {
+  if (!isDragging) return;
+  isDragging = false;
+  fab.classList.remove('dragging');
+  document.removeEventListener('mousemove', onPointerMove);
+  document.removeEventListener('mouseup', onPointerUp);
+  document.removeEventListener('touchmove', onPointerMove);
+  document.removeEventListener('touchend', onPointerUp);
+  if (hasMoved) {
+    const rect = fab.getBoundingClientRect();
+    saveFabPosition(rect.left, rect.top);
+  }
+}
+fab.addEventListener('mousedown', onPointerDown);
+fab.addEventListener('touchstart', onPointerDown, { passive: false });
+fab.addEventListener('click', (e) => {
+  if (hasMoved) { hasMoved = false; e.preventDefault(); e.stopPropagation(); return; }
+  openBugModal();
+});
+window.addEventListener('resize', () => {
+  const rect = fab.getBoundingClientRect();
+  const maxLeft = window.innerWidth - fab.offsetWidth;
+  const maxTop = window.innerHeight - fab.offsetHeight;
+  if (rect.left > maxLeft || rect.top > maxTop || rect.left < 0 || rect.top < 0) {
+    const nl = clamp(rect.left, 0, maxLeft), nt = clamp(rect.top, 0, maxTop);
+    fab.style.left = nl + 'px'; fab.style.top = nt + 'px';
+    saveFabPosition(nl, nt);
+  }
+});
+restoreFabPosition();
+
+/* ادیتور */
+const SAMPLES = {
+  palette: `<!DOCTYPE html><html><head><style>body{margin:0;background:#111122;color:#fff;font-family:sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}h2{margin-bottom:20px}.palette{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;width:100%;max-width:700px;margin-bottom:20px}.sw{height:160px;border-radius:16px;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding:10px;transition:transform .2s;box-shadow:0 6px 18px rgba(0,0,0,.4)}.sw:hover{transform:translateY(-6px)}.sw span{font-family:monospace;font-size:.8rem;background:rgba(0,0,0,.5);padding:4px 8px;border-radius:6px;direction:ltr}.btn{padding:14px 34px;font-size:1rem;font-weight:bold;color:#fff;border:none;border-radius:99px;cursor:pointer;background:linear-gradient(135deg,#6a11cb,#2575fc,#ff2e93);background-size:200% 200%}</style></head><body><h2>🎨 پالت رنگ</h2><div class="palette" id="p"></div><button class="btn" id="g">پالت جدید</button><script>const P=document.getElementById('p');function h2h(h,s,l){s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1))),x=v=>Math.round(255*v).toString(16).padStart(2,'0');return '#'+x(f(0))+x(f(8))+x(f(4))}function gen(){P.innerHTML='';const b=Math.random()*360;for(let i=0;i<5;i++){const hex=h2h(b+i*72+Math.random()*20-10,70+Math.random()*20,45+Math.random()*20);const d=document.createElement('div');d.className='sw';d.style.background=hex;d.innerHTML='<span>'+hex.toUpperCase()+'</span>';P.appendChild(d)}}document.getElementById('g').onclick=gen;gen();<\/script></body></html>`,
+  clock: `<!DOCTYPE html><html><head><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0b0b18;color:#fff;font-family:monospace}#t{font-size:clamp(2rem,12vw,7rem);font-weight:bold;background:linear-gradient(90deg,#6a11cb,#2575fc,#ff2e93,#6a11cb);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:3px;animation:g 4s linear infinite;filter:drop-shadow(0 0 30px rgba(37,117,252,.5))}@keyframes g{to{background-position:300% 0}}</style></head><body><div id="t">--:--:--</div><script>function tick(){var d=new Date();document.getElementById('t').textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0')}tick();setInterval(tick,1000);<\/script></body></html>`,
+  balls: `<!DOCTYPE html><html><head><style>body{margin:0;background:#0b0b18;overflow:hidden}canvas{display:block}</style></head><body><canvas id="c"></canvas><script>var c=document.getElementById('c'),ctx=c.getContext('2d');function rs(){c.width=innerWidth;c.height=innerHeight}rs();addEventListener('resize',rs);var B=[];for(var i=0;i<50;i++)B.push({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*4,vy:(Math.random()-.5)*4,r:6+Math.random()*18,h:Math.random()*360});function loop(){ctx.fillStyle='rgba(11,11,24,.18)';ctx.fillRect(0,0,c.width,c.height);B.forEach(function(b){b.x+=b.vx;b.y+=b.vy;if(b.x<b.r||b.x>c.width-b.r)b.vx*=-1;if(b.y<b.r||b.y>c.height-b.r)b.vy*=-1;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fillStyle='hsl('+b.h+',80%,60%)';ctx.fill();b.h=(b.h+.5)%360});requestAnimationFrame(loop)}loop();<\/script></body></html>`,
+  gradient: `<!DOCTYPE html><html><head><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0b0b18;font-family:sans-serif}h1{font-size:clamp(2rem,10vw,7rem);font-weight:900;background:linear-gradient(90deg,#ff2e93,#6a11cb,#2575fc,#ff2e93);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:g 4s linear infinite;filter:drop-shadow(0 0 40px rgba(106,17,203,.6))}@keyframes g{to{background-position:300% 0}}</style></head><body><h1>سلام دنیا</h1></body></html>`
+};
+
+const codeInput = document.getElementById('codeInput');
+const runBtn = document.getElementById('runBtn');
+const clearBtn = document.getElementById('clearBtn');
+const editorCard = document.getElementById('editorCard');
+const iframeWrap = document.getElementById('iframeWrap');
+const loadFileBtn = document.getElementById('loadFileBtn');
+const editorFileInput = document.getElementById('editorFileInput');
+const detectBadge = document.getElementById('detectBadge');
+const detectLabel = document.getElementById('detectLabel');
+const detectDot = document.getElementById('detectDot');
+const lineStat = document.getElementById('lineStat');
+const charStat = document.getElementById('charStat');
+const sizeStat = document.getElementById('sizeStat');
+const outputSection = document.getElementById('outputSection');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+const MIN_H = 280;
+function autoResizeTextarea() {
+  codeInput.style.height = 'auto';
+  const nh = codeInput.scrollHeight;
+  const mh = Math.min(window.innerHeight * 0.85, 2400);
+  codeInput.style.height = Math.max(MIN_H, Math.min(nh + 4, mh)) + 'px';
+  codeInput.style.overflowY = (nh + 4 > mh) ? 'auto' : 'hidden';
+}
+function flashEditorGrowth() {
+  editorCard.classList.remove('growing');
+  void editorCard.offsetWidth;
+  editorCard.classList.add('growing');
+  setTimeout(() => editorCard.classList.remove('growing'), 750);
+}
+function updateStats() {
+  const text = codeInput.value;
+  const lines = text ? text.split(/\r\n|\r|\n/).length : 0;
+  const bytes = new Blob([text]).size;
+  lineStat.textContent = lines.toLocaleString('en');
+  charStat.textContent = text.length.toLocaleString('en');
+  sizeStat.textContent = (bytes / 1024).toFixed(bytes < 1024 ? 2 : 1);
+}
+function setCode(text, { flash = false, scroll = false } = {}) {
+  codeInput.value = text;
+  updateStats();
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    autoResizeTextarea();
+    if (flash) flashEditorGrowth();
+    if (scroll) editorCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
+}
+codeInput.addEventListener('input', () => { updateStats(); autoResizeTextarea(); saveCurrentCode(); });
+window.addEventListener('resize', autoResizeTextarea);
+
+function detectType(name, content) {
+  const n = (name || '').toLowerCase().trim();
+  const c = (content || '').trim();
+  if (!c) return { type: 'empty', label: 'خالی', icon: '⬜', color: '#a9adc7' };
+  const isPalette = /palette|hslToHex|swatch|پالت|hsl\s*\(/i.test(c);
+  if (/<!DOCTYPE/i.test(c) || /<html[\s>]/i.test(c) || n.endsWith('.html') || n.endsWith('.htm')) {
+    if (isPalette) return { type: 'palette-html', label: 'کد پالت (HTML)', icon: '🎨', color: '#ff2e93' };
+    return { type: 'html', label: 'HTML', icon: '🌐', color: '#2575fc' };
+  }
+  if (n.endsWith('.js') || /^(function|const|let|var|import|export|class|async)\s/m.test(c) || /=>\s*\{/.test(c)) {
+    if (isPalette) return { type: 'palette-js', label: 'کد پالت (JS)', icon: '🎨', color: '#ff2e93' };
+    return { type: 'js', label: 'JavaScript', icon: '⚡', color: '#f59e0b' };
+  }
+  if (n.endsWith('.css') || (/^[.#\w\s,:>\[\]="'-]+\{[^}]*:[^}]+\}/m.test(c) && !/<html/i.test(c))) return { type: 'css', label: 'CSS', icon: '🎨', color: '#8b5cf6' };
+  if (n.endsWith('.json') || (c.startsWith('{') && c.endsWith('}') && c.includes(':'))) return { type: 'json', label: 'JSON', icon: '🧩', color: '#22c55e' };
+  if (/<\/[a-z][^>]*>/i.test(c)) {
+    if (isPalette) return { type: 'palette-html', label: 'کد پالت (HTML)', icon: '🎨', color: '#ff2e93' };
+    return { type: 'html-fragment', label: 'HTML (قطعه)', icon: '🌐', color: '#2575fc' };
+  }
+  return { type: 'text', label: 'متن', icon: '📄', color: '#a9adc7' };
+}
+function showDetectBadge(info) {
+  detectLabel.textContent = info.icon + ' ' + info.label + ' شناسایی شد';
+  detectDot.style.background = info.color;
+  detectBadge.style.borderColor = info.color + '55';
+  detectBadge.classList.remove('show');
+  void detectBadge.offsetWidth;
+  detectBadge.classList.add('show');
+}
+
+document.querySelectorAll('.mini-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.sample;
+    if (SAMPLES[key]) {
+      setCode(SAMPLES[key], { flash: true });
+      showDetectBadge(detectType('', SAMPLES[key]));
+      saveCurrentCode();
+      showToast('✅ نمونه بارگذاری شد', 'success');
+    }
+  });
+});
+
+loadFileBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); editorFileInput.click(); });
+editorFileInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  await loadFileIntoEditor(file);
+  editorFileInput.value = '';
+});
+async function loadFileIntoEditor(file) {
+  try {
+    if (/^(image|video|audio|application\/pdf|application\/zip)/i.test(file.type)) { showToast('⚠️ فایل متنی نیست', 'error'); return; }
+    const text = await file.text();
+    setCode(text, { flash: true, scroll: true });
+    showDetectBadge(detectType(file.name, text));
+    await dbAddFile({ name: file.name, size: file.size, type: file.type || 'text/plain', blob: file, date: Date.now() });
+    await renderFiles();
+    saveCurrentCode();
+    showToast('✅ ' + file.name + ' بارگذاری شد', 'success');
+  } catch (err) { showToast('❌ ' + err.message, 'error'); }
+}
+
+let outputFrame = null;
+function buildFinalHtml(code, info) {
+  if (info.type === 'html' || info.type === 'palette-html') return code;
+  if (info.type === 'html-fragment') return `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"></head><body>${code}</body></html>`;
+  if (info.type === 'js' || info.type === 'palette-js') return `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><style>body{font-family:monospace;background:#0a0a18;color:#e9e9ff;padding:20px;direction:ltr;text-align:left;line-height:1.7}</style></head><body><pre id="__err" style="color:#ff5b5b;margin-bottom:10px"></pre><script>window.onerror=function(m,s,l){document.getElementById('__err').textContent='⚠ Error: '+m+' (line '+l+')';return false;};try{${code}}catch(e){document.getElementById('__err').textContent='⚠ Error: '+e.message;}<\/script></body></html>`;
+  if (info.type === 'css') return `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><style>${code}</style></head><body><div style="padding:20px;font-family:sans-serif"><h1>پیش‌نمایش CSS</h1><p>یک پاراگراف نمونه.</p><button>دکمه نمونه</button><div class="box" style="padding:20px;margin-top:20px;background:#eee;color:#333">جعبه نمونه</div></div></body></html>`;
+  if (info.type === 'json') { let p = code; try { p = JSON.stringify(JSON.parse(code), null, 2); } catch(e) {} return `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{background:#0a0a18;color:#e9e9ff;font-family:monospace;padding:20px;direction:ltr;text-align:left;}</style></head><body><pre>${p.replace(/</g,'&lt;')}</pre></body></html>`; }
+  return `<!DOCTYPE html><html lang="fa" dir="rtl"><head><meta charset="UTF-8"><style>body{background:#0a0a18;color:#e9e9ff;font-family:monospace;padding:20px;white-space:pre-wrap;direction:ltr;text-align:left;line-height:1.7}</style></head><body>${code.replace(/</g,'&lt;')}</body></html>`;
+}
+
+runBtn.addEventListener('click', () => {
+  const code = codeInput.value.trim();
+  if (!code) {
+    codeInput.focus();
+    codeInput.style.borderColor = '#ff2e93';
+    setTimeout(() => { codeInput.style.borderColor = ''; }, 900);
+    showToast('⚠️ اول یه کد بنویس', 'error');
+    return;
+  }
+  const info = detectType('', code);
+  showDetectBadge(info);
+  iframeWrap.innerHTML = '';
+  outputFrame = document.createElement('iframe');
+  outputFrame.setAttribute('sandbox', 'allow-scripts allow-forms allow-modals allow-popups allow-fullscreen');
+  outputFrame.setAttribute('allowfullscreen', 'true');
+  outputFrame.srcdoc = buildFinalHtml(code, info);
+  iframeWrap.appendChild(outputFrame);
+  saveCurrentCode();
+  setTimeout(() => outputSection.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+  showToast('▶ کد اجرا شد', 'success');
+});
+
+clearBtn.addEventListener('click', () => {
+  setCode('', { scroll: false });
+  detectBadge.classList.remove('show');
+  iframeWrap.innerHTML = `<div class="output-empty"><div><div class="icon">⌨️</div><div>کدت رو بنویس یا فایل بارگذاری کن</div></div></div>`;
+  outputFrame = null;
+  saveCurrentCode();
+  codeInput.focus();
+});
+
+let isFullscreen = false;
+fullscreenBtn.addEventListener('click', () => {
+  if (!isFullscreen) {
+    outputSection.classList.add('fullscreen-mode');
+    fullscreenBtn.textContent = '✕ خروج';
+    isFullscreen = true;
+  } else {
+    outputSection.classList.remove('fullscreen-mode');
+    fullscreenBtn.textContent = '⛶ تمام‌صفحه';
+    isFullscreen = false;
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && isFullscreen) {
+    outputSection.classList.remove('fullscreen-mode');
+    fullscreenBtn.textContent = '⛶ تمام‌صفحه';
+    isFullscreen = false;
+  }
+});
+
+const STORAGE_KEY = 'codeworld_current_code';
+function saveCurrentCode() { try { localStorage.setItem(STORAGE_KEY, codeInput.value); } catch(e) {} }
+function restoreCurrentCode() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved && saved.trim()) {
+      setCode(saved, { flash: false });
+      showDetectBadge(detectType('', saved));
+    } else autoResizeTextarea();
+  } catch(e) { autoResizeTextarea(); }
+}
+
+/* IndexedDB */
+const DB_NAME = 'codeworld_files_db', DB_VERSION = 1, STORE = 'files';
+let dbPromise = null;
+function openDB() {
+  if (dbPromise) return dbPromise;
+  dbPromise = new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e) => { const db = e.target.result; if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE, { keyPath: 'id', autoIncrement: true }); };
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+  return dbPromise;
+}
+function dbAddFile(r) { return openDB().then(db => new Promise((res, rej) => { const tx = db.transaction(STORE, 'readwrite'); const q = tx.objectStore(STORE).add(r); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); })); }
+function dbGetAllFiles() { return openDB().then(db => new Promise((res, rej) => { const tx = db.transaction(STORE, 'readonly'); const q = tx.objectStore(STORE).getAll(); q.onsuccess = () => res(q.result || []); q.onerror = () => rej(q.error); })); }
+function dbDeleteFile(id) { return openDB().then(db => new Promise((res, rej) => { const tx = db.transaction(STORE, 'readwrite'); const q = tx.objectStore(STORE).delete(id); q.onsuccess = () => res(); q.onerror = () => rej(q.error); })); }
+
+function formatSize(b) { if (b < 1024) return b + ' B'; if (b < 1048576) return (b/1024).toFixed(1) + ' KB'; return (b/1048576).toFixed(2) + ' MB'; }
+function iconFor(type, name) {
+  const t = (type||'').toLowerCase(), n = (name||'').toLowerCase();
+  if (t.startsWith('image/')) return '🖼️';
+  if (t.startsWith('video/')) return '🎬';
+  if (t.startsWith('audio/')) return '🎵';
+  if (t === 'application/pdf' || n.endsWith('.pdf')) return '📕';
+  if (n.endsWith('.zip') || n.endsWith('.rar')) return '📦';
+  if (n.endsWith('.html') || n.endsWith('.htm')) return '🌐';
+  if (n.endsWith('.js')) return '⚡';
+  if (n.endsWith('.css')) return '🎨';
+  if (n.endsWith('.json')) return '🧩';
+  if (n.endsWith('.txt') || n.endsWith('.md')) return '📄';
+  return '📎';
+}
+function isTextFile(type, name) {
+  const t = (type||'').toLowerCase(), n = (name||'').toLowerCase();
+  if (t.startsWith('text/')) return true;
+  if (['application/json','application/javascript','application/xml'].includes(t)) return true;
+  return /\.(html?|js|css|txt|md|json|xml|svg|py|java|c|cpp|php)$/i.test(n);
+}
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const filesGrid = document.getElementById('filesGrid');
+
+async function renderFiles() {
+  try {
+    const files = await dbGetAllFiles();
+    filesGrid.innerHTML = '';
+    if (!files.length) { filesGrid.innerHTML = '<div class="files-empty">هنوز فایلی ذخیره نکردی 🗂</div>'; return; }
+    files.forEach((f, i) => {
+      const card = document.createElement('div');
+      card.className = 'file-card';
+      card.style.animationDelay = (i * 60) + 'ms';
+      card.innerHTML = `<div class="file-top"><div class="file-icon">${iconFor(f.type, f.name)}</div><div class="file-info"><div class="file-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div><div class="file-meta"><span>${formatSize(f.size)}</span><span>${new Date(f.date).toLocaleDateString('fa-IR')}</span></div></div></div><div class="file-actions">${isTextFile(f.type, f.name) ? '<button class="file-load">📝 لود</button>' : ''}<button class="file-delete">🗑 حذف</button></div>`;
+      card.querySelector('.file-delete').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (!confirm('فایل «' + f.name + '» حذف شود؟')) return;
+        await dbDeleteFile(f.id);
+        renderFiles();
+        showToast('🗑 حذف شد', 'success');
+      });
+      const lb = card.querySelector('.file-load');
+      if (lb) lb.addEventListener('click', async (e) => { e.stopPropagation(); await loadStoredFileToEditor(f); });
+      card.addEventListener('click', async () => { if (isTextFile(f.type, f.name)) await loadStoredFileToEditor(f); else previewFile(f); });
+      filesGrid.appendChild(card);
+    });
+  } catch(err) { filesGrid.innerHTML = '<div class="files-empty">خطا: ' + err.message + '</div>'; }
+}
+
+async function loadStoredFileToEditor(f) {
+  try {
+    const text = f.blob instanceof Blob ? await f.blob.text() : f.text;
+    setCode(text, { flash: true, scroll: true });
+    showDetectBadge(detectType(f.name, text));
+    saveCurrentCode();
+    showToast('✅ لود شد', 'success');
+  } catch(err) { showToast('❌ ' + err.message, 'error'); }
+}
+
+async function addFiles(list) {
+  const arr = Array.from(list);
+  if (!arr.length) return;
+  let ok = 0;
+  for (const f of arr) {
+    try { await dbAddFile({ name: f.name, size: f.size, type: f.type || 'application/octet-stream', blob: f, date: Date.now() }); ok++; } catch(e) {}
+  }
+  await renderFiles();
+  if (ok) showToast('✅ ' + ok + ' فایل ذخیره شد', 'success');
+}
+
+['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('dragover'); }));
+['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); dropZone.classList.remove('dragover'); }));
+dropZone.addEventListener('drop', (e) => { if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
+window.addEventListener('dragover', (e) => e.preventDefault());
+window.addEventListener('drop', (e) => e.preventDefault());
+fileInput.addEventListener('change', (e) => { if (e.target.files.length) addFiles(e.target.files); fileInput.value = ''; });
+
+const previewOverlay = document.getElementById('previewOverlay');
+const previewName = document.getElementById('previewName');
+const previewBody = document.getElementById('previewBody');
+let currentPreviewFile = null;
+function previewFile(f) {
+  currentPreviewFile = f;
+  previewName.textContent = f.name;
+  previewBody.innerHTML = '';
+  const b = f.blob, t = (f.type||'').toLowerCase(), n = (f.name||'').toLowerCase();
+  if (t.startsWith('image/')) { const u = URL.createObjectURL(b); const i = document.createElement('img'); i.src = u; i.onload = () => URL.revokeObjectURL(u); previewBody.appendChild(i); }
+  else if (t.startsWith('video/')) { const u = URL.createObjectURL(b); const v = document.createElement('video'); v.src = u; v.controls = true; previewBody.appendChild(v); }
+  else if (t.startsWith('audio/')) { const u = URL.createObjectURL(b); const a = document.createElement('audio'); a.src = u; a.controls = true; previewBody.appendChild(a); }
+  else { const d = document.createElement('div'); d.className = 'preview-unsupported'; d.textContent = 'پیش‌نمایش ممکن نیست. دانلود کن.'; previewBody.appendChild(d); }
+  previewOverlay.classList.add('open');
+}
+document.getElementById('previewClose').addEventListener('click', () => { previewOverlay.classList.remove('open'); setTimeout(() => previewBody.innerHTML = '', 300); });
+previewOverlay.addEventListener('click', (e) => { if (e.target === previewOverlay) { previewOverlay.classList.remove('open'); setTimeout(() => previewBody.innerHTML = '', 300); } });
+document.getElementById('previewDownload').addEventListener('click', () => {
+  if (!currentPreviewFile) return;
+  const u = URL.createObjectURL(currentPreviewFile.blob);
+  const a = document.createElement('a'); a.href = u; a.download = currentPreviewFile.name; a.click();
+  setTimeout(() => URL.revokeObjectURL(u), 1000);
+});
+document.getElementById('previewLoad').addEventListener('click', async () => {
+  if (currentPreviewFile) { const f = currentPreviewFile; previewOverlay.classList.remove('open'); await loadStoredFileToEditor(f); }
+});
+
+/* شروع */
+renderFiles();
+renderGames();
+restoreCurrentCode();
+updateAuthUI();
+
+/* چت‌بات — خلاصه */
+const BOT_DATA = [
+  { key:'learn', icon:'🎯', chip:'چطوری کدنویسی یاد بگیرم؟', keywords:['یاد بگیرم','یادگیری','چطور یاد','آموزش','شروع'], answer:['اول هدف مشخص کن: وب، موبایل، بازی یا هوش مصنوعی','یک زبان ساده انتخاب کن مثل پایتون یا جاوااسکریپت','هر روز حداقل ۳۰ دقیقه تمرین کن','از منابع رایگان مثل freeCodeCamp استفاده کن','ویدیوهای یوتیوب رو ببین و همزمان کد بزن','کتاب Automate the Boring Stuff with Python رو بخون','هر تمرین رو خودت انجام بده، فقط نگاه نکن','پروژه‌های کوچک بساز مثل ماشین‌حساب یا ساعت','وقتی گیر کردی از گوگل و ChatGPT کمک بگیر','توی انجمن‌ها مثل Stack Overflow سوال بپرس','با Git و GitHub آشنا شو','در پروژه‌های متن‌باز مشارکت کن','الگوریتم و ساختار داده رو جدی بگیر','برای خودت وبلاگ فنی بنویس','توی مسابقات کدنویسی مثل Codeforces شرکت کن','با برنامه‌نویس‌های دیگه در ارتباط باش','کدهای حرفه‌ای‌ها رو بخون','پروژه واقعی انجام بده، نه فقط تمرین','صبور باش، برنامه‌نویسی ماراتنه','از اشتباهاتت نترس، هر باگ یه درس جدید'] },
+  { key:'start', icon:'🚀', chip:'از کجا شروع کنم؟', keywords:['از کجا','شروع کنم','اول چه','ابتدای','کدوم اول'], answer:['اول ببین چه حوزه‌ای برات جذاب‌تره','اگه وب دوست داری: HTML، CSS، JavaScript','اگه موبایل: Kotlin یا Swift','اگه بازی: Unity با C# یا Unreal با C++','اگه هوش مصنوعی: Python','اگه تحلیل داده: Python با Pandas','برای شروع، پایتون بهترین گزینه‌ست','نصب یه ادیتور مثل VS Code','اولین برنامه: چاپ «سلام دنیا»','بعد متغیرها و انواع داده','شرط‌ها و حلقه‌ها رو تمرین کن','توابع و ماژول‌ها','برنامه‌نویسی شیءگرا (OOP)','کار با فایل و دیتابیس','یه پروژه کوچیک بساز و تمومش کن','کدت رو روی گیت‌هاب بذار','از کامیونیتی کمک بخواه','هر روز تمرین کن حتی ۱۵ دقیقه','بعد ۳ ماه اولین پروژه واقعی','مسیر یادگیری رو یادداشت کن'] },
+  { key:'language', icon:'💻', chip:'بهترین زبان چیه؟', keywords:['زبان','بهترین زبان','کدوم زبان','جاوااسکریپت','پایتون','جاوا'], answer:['جواب کوتاه: بستگی به هدفت داره','برای تازه‌کارها: پایتون بهترینه','برای وب فرانت: HTML، CSS، JavaScript','برای وب بک: Node.js، Python، PHP','برای موبایل اندروید: Kotlin یا Java','برای موبایل iOS: Swift','برای بازی: C# (Unity) یا C++','برای هوش مصنوعی: Python','برای علم داده: R یا Python','برای امنیت: Python و C','برای سیستم‌عامل: C و C++','برای بلاکچین: Solidity','برای دسکتاپ: C# یا Java','برای DevOps: Bash و Python','برای رباتیک: C++ و Python','مهم: یه زبان رو عمیق یاد بگیر','بعد از تسلط، زبان دوم راحت‌تره','مفاهیم مشترکن: متغیر، حلقه، تابع','بازار ایران: جاوااسکریپت و پایتون داغه','بازار جهانی: TypeScript، Go، Rust'] },
+  { key:'resources', icon:'📚', chip:'منابع رایگان', keywords:['منبع','منابع','سایت','دوره','کتاب','رایگان','freecodecamp','یوتیوب'], answer:['freeCodeCamp — دوره‌های رایگان','Codecademy — تمرین تعاملی','W3Schools — مرجع عالی وب','MDN Web Docs — مستندات رسمی','The Odin Project — مسیر کامل وب','CS50 هاروارد — پایه علوم کامپیوتر','Khan Academy — ریاضی و CS','YouTube — کانال‌های آموزش','SoloLearn — اپ موبایل','HackerRank — تمرین کد','LeetCode — تمرین الگوریتم','Codewars — چالش‌های جذاب','Exercism — تمرین با منتور','Stack Overflow — حل مشکلات','GitHub — پروژه‌های متن‌باز','Dev.to — مقالات','Roadmap.sh — نقشه راه','InterviewBit — آماده‌سازی مصاحبه','ChatGPT — کمک و توضیح','You Don\'t Know JS (رایگان)'] },
+  { key:'duration', icon:'⏰', chip:'چقدر طول می‌کشه؟', keywords:['چقدر','مدت','زمان','طول می‌کشه','چند ماه','چند وقت'], answer:['بستگی به هدف و زمان داره','برای شروع و مبانی: ۲ تا ۳ ماه','برای اولین پروژه: ۴ تا ۶ ماه','برای کارآموزی: ۶ تا ۹ ماه','برای اولین شغل: ۹ تا ۱۸ ماه','برای حرفه‌ای: ۲ تا ۳ سال','روزی ۱ ساعت = ~۶ ماه تا پایه','روزی ۳ ساعت = ~۳ ماه تا پایه','روزی ۶ ساعت = ~۱.۵ ماه تا پایه','مهم‌تر از زمان، کیفیت تمرینه','۳۰ دقیقه تمرین > ۳ ساعت ویدئو','تمرین عملی حیاتی‌تره','هر کسی سرعت خودش رو داره','پیشرفت خودت رو با دیروز مقایسه کن','پروژه واقعی سرعت رو چند برابر می‌کنه','یادگیری هیچ‌وقت تموم نمی‌شه','حتی ۱۰ ساله‌ها هم یاد می‌گیرن','کلید: استمرار و تمرین روزانه','از سفر لذت ببر','از یادگیری دست نکش'] },
+  { key:'skills', icon:'🛠', chip:'چه مهارت‌هایی لازمه؟', keywords:['مهارت','توانایی','لازم','نیاز','پیش‌نیاز'], answer:['یک زبان برنامه‌نویسی عمیق','الگوریتم و ساختار داده','Git و کنترل نسخه','کار با ترمینال','دیتابیس: SQL و NoSQL','API و وب سرویس‌ها','Debugging و حل مسئله','خواندن کد دیگران','تست‌نویسی','اصول امنیت','صبر و استقامت','تفکر منطقی','جستجوی مؤثر در گوگل','کار تیمی','مدیریت زمان','یادگیری مستمر','پذیرش نقد','کنجکاوی','خواندن مستندات انگلیسی','تعادل یادگیری و عمل'] }
+];
+
+const chatBody = document.getElementById('chatBody');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+const suggestionsEl = document.getElementById('suggestions');
+const chatReset = document.getElementById('chatReset');
+let isBusy = false;
+const WELCOME = 'سلام! 👋 من دستیار یادگیری کدنویسی‌ام. هر سوالی داری همین‌جا بنویس یا از گزینه‌های پایین یکی رو انتخاب کن.';
+
+function addUserMessage(text) { const m = document.createElement('div'); m.className = 'msg user'; m.textContent = text; chatBody.appendChild(m); chatBody.scrollTop = chatBody.scrollHeight; }
+function addBotMessage(text) { const m = document.createElement('div'); m.className = 'msg bot'; m.textContent = text; chatBody.appendChild(m); chatBody.scrollTop = chatBody.scrollHeight; }
+function addBotAnswer(lines) {
+  const m = document.createElement('div'); m.className = 'msg bot';
+  const h = document.createElement('div'); h.textContent = 'اینم راهنمای کامل:'; h.style.fontWeight = '700'; m.appendChild(h);
+  const w = document.createElement('div'); w.className = 'bot-lines'; m.appendChild(w);
+  chatBody.appendChild(m);
+  lines.forEach((line, i) => { const l = document.createElement('div'); l.className = 'bot-line'; l.style.animationDelay = (i*90)+'ms'; l.innerHTML = `<span class="num">${i+1}.</span>${line}`; w.appendChild(l); setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, i*90); });
+}
+function showTyping() { const t = document.createElement('div'); t.className = 'typing'; t.id = 'typingIndicator'; t.innerHTML = '<span></span><span></span><span></span>'; chatBody.appendChild(t); chatBody.scrollTop = chatBody.scrollHeight; return t; }
+function matchTopic(text) {
+  const c = text.replace(/[؟?.,،!]/g, '').trim();
+  if (!c) return null;
+  let best = null, score = 0;
+  BOT_DATA.forEach(t => { let s = 0; t.keywords.forEach(k => { if (c.includes(k)) s += k.length; }); if (s > score) { score = s; best = t; } });
+  return score > 0 ? best : null;
+}
+async function answerQuestion(q) {
+  if (isBusy) return;
+  isBusy = true; setInputEnabled(false);
+  addUserMessage(q);
+  const t = showTyping();
+  await sleep(700 + Math.random() * 400);
+  t.remove();
+  const topic = matchTopic(q);
+  if (topic) { addBotAnswer(topic.answer); await sleep(topic.answer.length * 90 + 200); }
+  else { addBotMessage('متوجه نشدم 🤔 ولی این موضوعات رو دارم:'); const l = document.createElement('div'); l.className = 'msg bot'; l.style.padding = '10px 18px'; BOT_DATA.forEach(t => { const i = document.createElement('div'); i.style.padding = '6px 0'; i.innerHTML = `${t.icon} <b>${t.chip}</b>`; l.appendChild(i); }); chatBody.appendChild(l); chatBody.scrollTop = chatBody.scrollHeight; }
+  isBusy = false; setInputEnabled(true); chatInput.focus();
+}
+function setInputEnabled(e) { chatInput.disabled = !e; sendBtn.disabled = !e; document.querySelectorAll('.chip').forEach(c => c.disabled = !e); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function sendMessage() { const t = chatInput.value.trim(); if (!t || isBusy) return; chatInput.value = ''; answerQuestion(t); }
+sendBtn.addEventListener('click', sendMessage);
+chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendMessage(); } });
+BOT_DATA.forEach(t => {
+  const c = document.createElement('button'); c.className = 'chip';
+  c.innerHTML = `<span>${t.icon}</span> ${t.chip}`;
+  c.addEventListener('click', () => { if (!isBusy) answerQuestion(t.chip); });
+  suggestionsEl.appendChild(c);
+});
+chatReset.addEventListener('click', () => { chatBody.innerHTML = ''; addBotMessage(WELCOME); setInputEnabled(true); });
+addBotMessage(WELCOME);
+
+/* ریویل */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('revealed'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
